@@ -15,9 +15,11 @@ public interface TweetsService {
 
     TweetResponse replyToTweet(TweetRequest request);
 
-    TweetResponse likeATweet(TweetRequest request);
+    TweetResponse likeATweet(TweetRequest request, String username);
 
-    TweetResponse unlikeATweet(TweetRequest request);
+    TweetResponse unlikeATweet(TweetRequest request, String username);
 
     TweetResponse updateTweet(TweetRequest request);
+
+    TweetResponse findPopularTweetsOfLastMonth();
 }

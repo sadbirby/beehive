@@ -6,6 +6,7 @@ import com.beehive.service.TweetsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/v1.0/tweets")
+@CrossOrigin("*")
 public class TweetController {
 
     @Autowired
@@ -45,9 +47,16 @@ public class TweetController {
         return response;
     }
 
+    @GetMapping(value = "/popular")
+    public TweetResponse getPopularTweets() {
+        TweetResponse response = tweetsService.findPopularTweetsOfLastMonth();
+        logger.info("Tweet Controller" + " in popular Tweets() call " + response.getStatusMessage());
+        return response;
+    }
+
     @DeleteMapping(path = "/{username}/delete/{id}")
-    public TweetResponse deleteTweet(@PathVariable("username") String userName, @PathVariable("id") String tweetId) {
-        TweetResponse response = tweetsService.deleteTweet(userName, tweetId);
+    public TweetResponse deleteTweet(@PathVariable("username") String username, @PathVariable("id") String tweetId) {
+        TweetResponse response = tweetsService.deleteTweet(username, tweetId);
         logger.info("Tweet Controller" + " in deleteTweet() call " + response.getStatusMessage());
         return response;
     }
@@ -60,16 +69,16 @@ public class TweetController {
         return response;
     }
 
-    @PostMapping(value = "/like")
-    public TweetResponse likeATweet(@RequestBody TweetRequest request) {
-        TweetResponse response = tweetsService.likeATweet(request);
+    @PostMapping(value = "/{username}/like")
+    public TweetResponse likeATweet(@PathVariable String username, @RequestBody TweetRequest request) {
+        TweetResponse response = tweetsService.likeATweet(request, username);
         logger.info("Tweet Controller" + " in likeATweet() call " + response.getStatusMessage());
         return response;
     }
 
-    @PostMapping(value = "/unlike")
-    public TweetResponse unlikeATweet(@RequestBody TweetRequest request) {
-        TweetResponse response = tweetsService.unlikeATweet(request);
+    @PostMapping(value = "/{username}/unlike")
+    public TweetResponse unlikeATweet(@PathVariable String username, @RequestBody TweetRequest request) {
+        TweetResponse response = tweetsService.unlikeATweet(request, username);
         logger.info("Tweet Controller" + " in unlikeATweet() call " + response.getStatusMessage());
         return response;
     }

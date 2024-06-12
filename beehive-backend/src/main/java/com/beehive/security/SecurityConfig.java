@@ -13,12 +13,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Configuration
 @EnableWebSecurity
@@ -29,8 +27,7 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             // -- Register & Authenticate User
-//            "/api/v1.0/user/authenticate",
-            "/authenticate",
+            "/api/v1.0/login/authenticate",
             "/api/v1.0/user/forgot-password",
             "/api/v1.0/user/register",
             // -- Swagger UI v2

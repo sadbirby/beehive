@@ -1,6 +1,8 @@
 package com.beehive.dto;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public class TweetsDto {
 
@@ -9,20 +11,20 @@ public class TweetsDto {
     private String tweetId;
     private Long like;
     private List<ReplyDto> reply;
-    private String dateOfPost;
-    private String timeOfPost;
+    private Set<String> likedBy;
+    private Date dateOfPost;
 
     public TweetsDto() {
     }
 
-    public TweetsDto(String tweet, String userTweetId, String tweetId, Long like, List<ReplyDto> reply, String dateOfPost, String timeOfPost) {
+    public TweetsDto(String tweet, String userTweetId, String tweetId, Long like, List<ReplyDto> reply, Set<String> likedBy, Date dateOfPost) {
         this.tweet = tweet;
         this.userTweetId = userTweetId;
         this.tweetId = tweetId;
         this.like = like;
         this.reply = reply;
+        this.likedBy = likedBy;
         this.dateOfPost = dateOfPost;
-        this.timeOfPost = timeOfPost;
     }
 
     public String getTweet() {
@@ -65,19 +67,19 @@ public class TweetsDto {
         this.reply = reply;
     }
 
-    public String getDateOfPost() {
+    public Date getDateOfPost() {
         return dateOfPost;
     }
 
-    public void setDateOfPost(String dateOfPost) {
+    public void setDateOfPost(Date dateOfPost) {
         this.dateOfPost = dateOfPost;
     }
 
-    public String getTimeOfPost() {
-        return timeOfPost;
+    public Set<String> getLikedBy() {
+        return likedBy;
     }
 
-    public void setTimeOfPost(String timeOfPost) {
-        this.timeOfPost = timeOfPost;
+    public void setLikedBy(Set<String> likedBy) {
+        this.likedBy = likedBy;
     }
 }

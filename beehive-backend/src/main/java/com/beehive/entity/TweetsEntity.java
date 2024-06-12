@@ -2,7 +2,9 @@ package com.beehive.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.beehive.dto.ReplyDto;
 import jakarta.persistence.ElementCollection;
@@ -22,19 +24,20 @@ public class TweetsEntity {
     private String tweet;
     private String userTweetId;
     private Long likes;
-    @ElementCollection
-    private List<ReplyDto> reply = new ArrayList<>();
+    @ElementCollection private List<ReplyDto> reply = new ArrayList<>();
+    @ElementCollection private Set<String> likedBy = new HashSet<>();
     private Date dateOfPost;
 
     public TweetsEntity() {
     }
 
-    public TweetsEntity(String tweetId, String tweet, String userTweetId, Long likes, List<ReplyDto> reply, Date dateOfPost) {
+    public TweetsEntity(String tweetId, String tweet, String userTweetId, Long likes, List<ReplyDto> reply, Set<String> likedBy, Date dateOfPost) {
         this.tweetId = tweetId;
         this.tweet = tweet;
         this.userTweetId = userTweetId;
         this.likes = likes;
         this.reply = reply;
+        this.likedBy = likedBy;
         this.dateOfPost = dateOfPost;
     }
 
@@ -76,6 +79,14 @@ public class TweetsEntity {
 
     public void setReply(List<ReplyDto> reply) {
         this.reply = reply;
+    }
+
+    public Set<String> getLikedBy() {
+        return likedBy;
+    }
+
+    public void setLikedBy(Set<String> likedBy) {
+        this.likedBy = likedBy;
     }
 
     public Date getDateOfPost() {
