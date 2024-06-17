@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import com.beehive.entity.UsersEntity;
+import com.beehive.entity.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,16 +18,10 @@ public class UserPrincipal implements UserDetails {
     String password = null;
     Set<SimpleGrantedAuthority> authorities;
 
-    public UserPrincipal(UsersEntity usersEntity) {
-        username = usersEntity.getLoginId();
-        password = usersEntity.getPassword();
+    public UserPrincipal(UserEntity userEntity) {
+        username = userEntity.getUsername();
+        password = userEntity.getPassword();
         authorities = Collections.singleton(new SimpleGrantedAuthority("USER"));
-
-        System.out.println("UserPrincipal{" +
-                "loginId='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", authorities=" + authorities +
-                '}');
     }
 
     @Override

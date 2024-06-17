@@ -1,7 +1,7 @@
 package com.beehive.controller;
 
-import com.beehive.request.AuthRequest;
-import com.beehive.response.AuthResponse;
+import com.beehive.request.AuthenticationRequest;
+import com.beehive.response.AuthenticationResponse;
 import com.beehive.security.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +28,17 @@ public class AuthenticationController {
     private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
 
     @PostMapping(path = "/authenticate")
-    public AuthResponse authenticate(@RequestBody AuthRequest authRequest) {
+    public AuthenticationResponse authenticate(@RequestBody AuthenticationRequest authenticationRequest) {
 
         // Authenticate the user
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getLoginId(), authRequest.getPassword()));
-        logger.info("Authentication controller: " + "trying to log in [" + authenticate.isAuthenticated() + "]");
+        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
+        logger.info("Authentication controller: Logged in");
 
         // If authentication is successful, generate and return a JWT token
         if (authenticate.isAuthenticated()) {
-            return new AuthResponse(jwtService.generateToken(authRequest.getLoginId()), "SUCCESS");
+            return new AuthenticationResponse(jwtService.generateToken(authenticationRequest.getUsername()), "SUCCESS");
         } else {
-            throw new UsernameNotFoundException("USER NOT FOUND: " + authRequest.getLoginId());
+            throw new UsernameNotFoundException("USER NOT FOUND: " + authenticationRequest.getUsername());
         }
     }
 }

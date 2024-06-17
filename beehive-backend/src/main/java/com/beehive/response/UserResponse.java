@@ -4,22 +4,30 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-import com.beehive.dto.UsersDto;
+import com.beehive.dto.UserDto;
 
 public class UserResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 5432683200958075030L;
 
-    private List<UsersDto> usersDto;
+    private List<UserDto> users;
     private String statusMessage;
 
-    public List<UsersDto> getUsersDto() {
-        return usersDto;
+    public UserResponse() {
     }
 
-    public void setUsersDto(List<UsersDto> usersDto) {
-        this.usersDto = usersDto;
+    public UserResponse(List<UserDto> users, String statusMessage) {
+        this.users = users;
+        this.statusMessage = statusMessage;
+    }
+
+    public List<UserDto> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<UserDto> users) {
+        this.users = users;
     }
 
     public String getStatusMessage() {

@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -19,18 +20,18 @@ import java.util.function.Function;
 public class JwtService {
 
     // Secret Key for signing the JWT. It should be kept private.
-    private static final String SECRET = "V1NDQW1wbGVSYW5kb21LZXlGGVSYW5kb21LZXlGb3JXSVQtR1BU";
+    @Value("${beehive.jwt.secret}") private String SECRET;
 
-    // Generates a JWT token for the given userName.
-    public String generateToken(String userName) {
+    // Generates a JWT token for the given username.
+    public String generateToken(String username) {
         // Prepare claims for the token
         Map<String, Object> claims = new HashMap<>();
 
         /*
          *  Build JWT token with claims, subject, issued time, expiration time, and signing algorithm
-         *  Token valid for 60 minutes
+         *  Token valid for 24 hours
          */
-        return Jwts.builder().setClaims(claims).setSubject(userName).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+        return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + (1000 * 60 * 60 * 24))).signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
 
     /*

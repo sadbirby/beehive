@@ -2,8 +2,8 @@ package com.beehive.security;
 
 import java.util.Optional;
 
-import com.beehive.entity.UsersEntity;
-import com.beehive.repository.UsersRepository;
+import com.beehive.entity.UserEntity;
+import com.beehive.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,16 +17,16 @@ import org.springframework.stereotype.Service;
 public class UserPrincipalService implements UserDetailsService {
 
     @Autowired
-    UsersRepository usersRepository;
+    UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<UsersEntity> user = usersRepository.findByLoginId(loginId);
+        Optional<UserEntity> user = userRepository.findByUsername(username);
         return user.map(UserPrincipal::new)
-                   .orElseThrow(() -> new UsernameNotFoundException("User Not Found: " + loginId));
+                   .orElseThrow(() -> new UsernameNotFoundException("User Not Found: " + username));
     }
 }
