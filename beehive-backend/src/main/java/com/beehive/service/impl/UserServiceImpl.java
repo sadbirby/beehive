@@ -108,9 +108,10 @@ public class UserServiceImpl implements UserService {
             UserEntity userEntity = optionalEntities.get();
             List<UserEntity> userEntityList = new ArrayList<>();
             userEntityList.add(userEntity);
-            userEntityList.forEach(e -> {
+            userEntityList.forEach(entity -> {
                 UserDto userDto = new UserDto();
-                userDto.setUsername(e.getUsername());
+                userDto.setUsername(entity.getUsername());
+                userDto.setEmail(entity.getEmail());
                 userDtoList.add(userDto);
             });
             response.setStatusMessage("SUCCESS");

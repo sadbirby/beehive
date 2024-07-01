@@ -1,35 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { useGlobalAppContext } from "./context/app-context";
 import RootPostComponent from "./pages/root-post-component";
 import RootPreComponent from "./pages/root-pre-component";
-import { useGlobalAppContext } from "./context/app-context";
 
 const App = () => {
+  const { selectedPage } = useGlobalAppContext();
 
-    const { selectedPage } = useGlobalAppContext();
+  const [componentToLoad, setComponentToLoad] = useState();
 
-    const [componentToLoad, setComponentToLoad] = useState();
+  useEffect(() => {
+    if (localStorage.getItem("isAuthenticated")) {
+      console.log("Authenticated!");
+      setComponentToLoad(<RootPostComponent />);
+    } else {
+      console.log("Not Authenticated!");
+      setComponentToLoad(<RootPreComponent />);
+    }
+  }, [selectedPage]);
 
-    useEffect(() => {
-        console.log('INSIDE APP.JSX USEEFFECT');
-        if (localStorage.getItem("isAuthenticated")) {
-            console.log('Authenticated!')
-            setComponentToLoad(<RootPostComponent />);
-        } else {
-            console.log('Not Authenticated!')
-            setComponentToLoad(<RootPreComponent />);
-        }
-    }, [selectedPage]);
-
-    return (<>
-        {componentToLoad}
-    </>)
-}
+  return <>{componentToLoad}</>;
+};
 
 App.propTypes = {
-    props: PropTypes.object,
-    global: PropTypes.object,
+  props: PropTypes.object,
+  global: PropTypes.object,
 };
 
 export default App;

@@ -2,6 +2,7 @@ package com.beehive.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,6 +46,7 @@ public class ReplyEntity {
         this.replyId = replyId;
     }
 
+    @JsonBackReference
     public PostEntity getPost() {
         return post;
     }

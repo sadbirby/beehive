@@ -1,17 +1,22 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import '../styles/globals.css'
-import { AppProvider } from './context/app-context.jsx'
-import { Toaster } from '@/components/ui/toaster.jsx'
+import { Toaster } from "@/components/ui/sonner";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "../styles/globals.css";
+import App from "./App.jsx";
+import { AppProvider } from "./context/app-context.jsx";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <main>
       <AppProvider>
         <App />
       </AppProvider>
     </main>
-    <Toaster />
-  </React.StrictMode>
-)
+    <Toaster
+      expand={true}
+      richColors={true}
+      pauseWhenPageIsHidden={true}
+      toastOptions={{}}
+    />
+  </React.StrictMode>,
+);

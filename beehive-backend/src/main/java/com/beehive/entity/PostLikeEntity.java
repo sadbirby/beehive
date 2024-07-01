@@ -1,6 +1,7 @@
 package com.beehive.entity;
 
 import com.beehive.composite.PostLikeId;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -37,6 +38,7 @@ public class PostLikeEntity {
         this.postLikedBy = postLikedBy;
     }
 
+    @JsonBackReference
     public PostEntity getPost() {
         return post;
     }

@@ -1,224 +1,255 @@
-import { useEffect, useState } from "react";
-import { fetchAllPosts, likeTweet, postReplyTweet, unlikeTweet } from "./home-helper";
-import { useGlobalAppContext } from "@/context/app-context";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
-// import PopularPostsComponent from './popular-posts-component';
-import { pages } from '@/constants/pages';
-import { ArrowBigUp, MessageSquareIcon } from "lucide-react";
+/* eslint-disable react/prop-types */
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
-
-// import FeedComponent from './feed-component';
+import { useGlobalAppContext } from "@/context/app-context";
+import { getRelativeDate } from "@/service/get-relative-date";
+import {
+  ArrowBigUp,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  MessageSquareIcon,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ReplyAreaComponent } from "./reply-area-component";
+import { fetchAllReplies } from "./reply-helper";
 
 const ReplyComponent = () => {
+  const { loaderEnabled, loaderMessage, postData, showLoader, hideLoader } =
+    useGlobalAppContext();
+  const [openModal, setOpenModal] = useState(false);
+  const [replyResponse, setReplyResponse] = useState({});
+  const pageIndexRef = useRef(0);
+  const inputRef = useRef(1);
 
-    const { selectedPage, userData, showLoader, hideLoader } = useGlobalAppContext();
-    const [tweetList, setTweetList] = useState([]);
-
-    const getAllPosts = async () => {
-        try {
-            showLoader("fetching All Posts");
-            setTweetList(await fetchAllPosts(userData.username));
-            console.log('GetAllPosts', tweetList);
-            hideLoader();
-        } catch (e) {
-            hideLoader();
-        }
+  useEffect(() => {
+    console.log("INSIDE REPLY.JSX USEEFFECT");
+    const initialise = async () => {
+      await getAllReplies(pageIndexRef.current);
     };
+    initialise();
+  }, []);
 
-    useEffect(() => {
-        console.log('INSIDE HOME.JSX USEEFFECT');
-        const initialise = async () => {
-            await getAllPosts();
-        }
-        initialise();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedPage]);
-
-    const generatePosts = () => {
-        return tweetList.map((tweet) => {
-
-            const date1 = new Date();
-            const date2 = new Date(tweet.dateOfPost);
-            const diffTime = Math.abs(date2 - date1);
-
-            var diffDays = Math.ceil(diffTime / (1000 * 60));
-            var units = "mins"
-            var userTweetId = tweet.userTweetId;
-            var tweetId = tweet.tweetId
-            var likedByCurrentUser = tweet.likedBy.includes(userData.loginId);
-
-            if (diffDays > 60) {
-                diffDays = (diffDays / 60).toFixed();
-                units = "hours"
-                if (diffDays > 24) {
-                    diffDays = (diffDays / 24).toFixed();
-                    units = diffDays > 1 ? "days" : "day"
-                }
-            }
-
-            const onLikeClick = async () => {
-                try {
-                    console.log('IS LIKED BY CURRENT USER?: ', likedByCurrentUser);
-                    if (likedByCurrentUser) {
-                        await unlikeTweet({ "tweet": { "tweetId": tweetId } }, userData.loginId);
-                        tweet.like = tweet.like - 1;
-                        tweet.likedBy = tweet.likedBy.filter(id => id !== userData.loginId);
-                        setTweetList(tweetList);
-                    }
-                    else {
-                        await likeTweet({ tweet: { tweetId: tweetId } }, userData.loginId);
-                        tweet.like = tweet.like + 1;
-                        tweet.likedBy = [...tweet.likedBy, userData.loginId];
-                        setTweetList(tweetList);
-                    }
-                    likedByCurrentUser = !likedByCurrentUser;
-                    likeIndicator();
-                } catch (e) { console.log(e) }
-            }
-
-            const likeIndicator = () => {
-                return likedByCurrentUser ? <ArrowBigUp color='teal' fill='teal' /> : <ArrowBigUp />;
-            }
-
-            const onReplyClick = () => {
-
-                var tweets = [...tweetList]
-                tweet.showReplies = !tweet.showReplies;
-                setTweetList(tweets);
-            }
-
-            var replyMessage = ""
-            const onChangeText = (e) => { replyMessage = e.target.value }
-
-            const onReplyTweet = async () => {
-                try {
-                    showLoader("Posting Reply")
-                    await postReplyTweet({
-                        tweet: {
-                            "userTweetId": userTweetId,
-                            "tweetId": tweetId,
-                            "reply": [
-                                {
-                                    "userId": userData.loginId,
-                                    "replied": replyMessage
-                                }
-                            ]
-                        }
-
-                    });
-
-                    var tweetList = await fetchAllPosts();
-                    setTweetList(tweetList);
-                    hideLoader();
-                } catch (e) { hideLoader(); }
-            }
-
-            return (<div key={tweet.tweetId}>
-                <Separator className='mb-3' />
-                <Card className="px-0 py-2 border-none inline-flex w-full hover:bg-secondary/[40%]">
-                    <div className='pl-4 pr-0 py-0 grid grid-rows-2 gap-0 place-items-center'>
-                        <div>
-                            <Avatar>
-                                <AvatarFallback>{tweet.userTweetId.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                        </div>
-                    </div>
-                    <div className='flex-initial w-full'>
-                        <CardHeader className="py-0 px-4">
-                            <div className="grid grid-cols-2 gap-0">
-                                <div>
-                                    <p className='font-extrabold'>@{tweet.userTweetId}</p>
-                                </div>
-                                <div className='place-self-end'>
-                                    <CardDescription className="text-right">
-                                        {diffDays} {units} ago
-                                    </CardDescription>
-                                </div>
-
-                            </div>
-                        </CardHeader>
-                        <CardContent onClick={onReplyClick} className='cursor-pointer px-4 py-1'><p className='font-thin'>{tweet.tweet}</p></CardContent>
-                        <CardFooter className="px-4 py-0 grid grid-cols-2">
-                            <div className='inline-flex gap-4'>
-                                <div className='cursor-pointer border bg-secondary rounded-full inline-flex pl-2 pr-4 py-1 items-center gap-2' onClick={onLikeClick} >
-                                    {likeIndicator()}
-                                    <p className='text-center font-extralight text-xs'>{tweet.like}</p>
-                                </div>
-                                <div className='cursor-pointer border bg-secondary rounded-full inline-flex pl-2 pr-4 py-1 items-center gap-2' onClick={onLikeClick} >
-                                    <MessageSquareIcon />
-                                    <p className='text-center font-extralight text-xs'>{tweet.reply.length}</p>
-                                </div>
-                            </div>
-                        </CardFooter>
-                        <div>
-                            {
-                                tweet.showReplies &&
-                                <>
-                                    <div>
-                                        {
-                                            tweet.reply.map((reply, replyIndex) => {
-
-                                                const replydate1 = new Date();
-                                                const replydate2 = new Date(reply.dateReplied);
-                                                const replydiffTime = Math.abs(replydate2 - replydate1);
-                                                var replydiffDays = Math.ceil(replydiffTime / (1000 * 60));
-                                                var units = "mins"
-                                                if (replydiffDays > 60) {
-                                                    replydiffDays = (replydiffDays / 60).toFixed();
-                                                    units = "hours"
-                                                    if (replydiffDays > 24) {
-                                                        replydiffDays = (replydiffDays / 24).toFixed();
-                                                        units = replydiffDays > 1 ? "days" : "day"
-                                                    }
-                                                }
-                                                return (
-                                                    <div key={replyIndex}>
-                                                        <Avatar>
-                                                            <AvatarFallback>{reply.userId.charAt(0)}</AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p>{reply.userId} <span>{replydiffDays} {units} ago</span></p>
-                                                            <p>{reply.replied}</p>
-                                                        </div>
-
-                                                    </div>
-                                                )
-                                            })}
-                                    </div>
-                                    <div>
-                                        <p>You are replying to <span>{tweet.userTweetId}</span></p>
-                                        <div>
-                                            <Avatar>
-                                                <AvatarFallback>{tweet.userTweetId.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <textarea placeholder={"Post your reply"} multiple={4} maxLength={144} onChange={onChangeText} />
-                                        </div>
-
-                                        <div>
-                                            <Button onClick={onReplyTweet}>Reply</Button>
-                                        </div>
-                                    </div>
-                                </>
-                            }
-
-                        </div>
-                    </div>
-                </Card >
-            </div>)
-        });
+  const getAllReplies = async (pageNumber) => {
+    try {
+      showLoader("Fetching Replies...");
+      setReplyResponse(await fetchAllReplies(postData.postId, pageNumber));
+      console.log("GetAllReplies", replyResponse);
+    } catch (e) {
+      console.error("Error in reply-component");
+    } finally {
+      hideLoader();
     }
+  };
 
-    return (<div className="grid lg:grid-cols-[1fr_360px] gap-2">
-        <div className="grid grid-cols-1 gap-3">
-            <Card className="px-0 py-4"></Card>
-            <div>
-                {generatePosts}
-            </div>
+  const onPageIndexChange = async (newIndex) => {
+    pageIndexRef.current = newIndex;
+    await getAllReplies(newIndex);
+  };
+
+  const PostCardComponent = () => {
+    return (
+      <Card className="inline-flex w-full border-none bg-secondary px-0 py-4">
+        <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
+          <div>
+            <Avatar className="">
+              <AvatarFallback className="">
+                {postData.postedBy.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
         </div>
-        {/* <PopularPostsComponent /> */}
-    </div>)
-}
+        <div className="w-full flex-initial">
+          <CardHeader className="py-0 pl-4 pr-10">
+            <div className="grid grid-cols-2 gap-0">
+              <div>
+                <p className="text-xs">{postData.postedBy}</p>
+              </div>
+              <div className="place-self-end">
+                <CardDescription className="text-right text-xs">
+                  {getRelativeDate(postData.postedOn)}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="py-1 pl-4 pr-10">
+            <p className="text-sm font-bold">{postData.postTitle}</p>
+          </CardContent>
+          <CardContent className="py-1 pl-4 pr-10">
+            <p className="text-sm">{postData.postBody}</p>
+          </CardContent>
+          <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
+            <div className="inline-flex gap-4">
+              <div className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4 hover:bg-secondary/[80%]">
+                <ArrowBigUp />
+                <p className="text-center text-xs">{postData.numberOfLikes}</p>
+              </div>
+              <div
+                className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4 hover:bg-secondary/[80%]"
+                onClick={() => setOpenModal(!openModal)}
+              >
+                <MessageSquareIcon />
+                <p className="text-center text-xs">
+                  {postData.numberOfReplies}
+                </p>
+              </div>
+            </div>
+          </CardFooter>
+        </div>
+      </Card>
+    );
+  };
+
+  const listItems = replyResponse.content?.map((reply, index, { length }) => {
+    return (
+      <div key={reply.replyId}>
+        <Card className="inline-flex w-full border-none bg-inherit px-0 py-4 shadow-none hover:bg-secondary">
+          <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
+            <div>
+              <Avatar>
+                <AvatarFallback>
+                  {reply.repliedBy.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </div>
+          <div className="w-full flex-initial">
+            <CardHeader className="py-0 pl-4 pr-10">
+              <div className="grid grid-cols-2 gap-0">
+                <div>
+                  <p className="text-xs">{reply.repliedBy}</p>
+                </div>
+                <div className="place-self-end">
+                  <CardDescription className="text-right text-xs">
+                    {getRelativeDate(reply.repliedOn)}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="py-1 pl-4 pr-10">
+              <p className="text-sm">{reply.replyBody}</p>
+            </CardContent>
+          </div>
+        </Card>
+        <Separator className="mt-2" hidden={index + 1 === length} />
+      </div>
+    );
+  });
+
+  return loaderEnabled ? (
+    <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
+      <LoadingSpinner />
+      <div>
+        <h4 className="text-sm font-extralight">{loaderMessage}</h4>
+      </div>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-3">
+        <PostCardComponent />
+        <ReplyAreaComponent
+          open={openModal}
+          onOpenChange={setOpenModal}
+          postId={postData.postId}
+          onPageIndexChange={onPageIndexChange}
+        />
+        {replyResponse.totalElements > 0 ? (
+          <>
+            <div className="grid grid-cols-1 gap-2 rounded border bg-secondary/[25%] p-2">
+              {listItems}
+            </div>
+            <div className="flex-row items-center justify-between gap-2 px-0 py-4">
+              <div className="flex items-center justify-center space-x-2">
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => {
+                    if (!replyResponse.first) {
+                      onPageIndexChange(0);
+                    }
+                  }}
+                  disabled={replyResponse.first}
+                >
+                  <span className="sr-only">Go to first page</span>
+                  <ChevronsLeftIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => {
+                    if (!replyResponse.first) {
+                      onPageIndexChange(pageIndexRef.current - 1);
+                    }
+                  }}
+                  disabled={replyResponse.first}
+                >
+                  <span className="sr-only">Go to previous page</span>
+                  <ChevronLeftIcon className="h-4 w-4" />
+                </Button>
+                <div className="flex w-1/6 items-center justify-center text-sm font-medium">
+                  Page {replyResponse.number + 1} of {replyResponse.totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => {
+                    if (!replyResponse.last) {
+                      onPageIndexChange(pageIndexRef.current + 1);
+                    }
+                  }}
+                  disabled={replyResponse.last}
+                >
+                  <span className="sr-only">Go to next page</span>
+                  <ChevronRightIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => {
+                    if (!replyResponse.last) {
+                      onPageIndexChange(replyResponse.totalPages - 1);
+                    }
+                  }}
+                  disabled={replyResponse.last}
+                >
+                  <span className="sr-only">Go to last page</span>
+                  <ChevronsRightIcon className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Todo: jump to page */}
+              {/* <div className="flex items-center justify-center w-full gap-2">
+                    <p className="text-xs font-bold">Jump To</p>
+                    <Input
+                        className="h-8 w-32 "
+                        type="number"
+                        onChange={e => inputRef.current = e.target.value}
+                    />
+                    <Button
+                        className="h-8 w-8 "
+                        onClick={() => onPageIndexChange(inputRef.current - 1)}
+                        disabled={inputRef.current < 1 || inputRef.current > replyResponse.totalPages}
+                    >Go</Button>
+                </div> */}
+            </div>
+          </>
+        ) : (
+          <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
+            <p>This post has no replies.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default ReplyComponent;

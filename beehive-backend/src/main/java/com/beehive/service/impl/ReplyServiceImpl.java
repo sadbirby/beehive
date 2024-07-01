@@ -12,6 +12,11 @@ import com.beehive.service.ReplyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,13 +27,15 @@ public class ReplyServiceImpl implements ReplyService {
     Logger logger = LoggerFactory.getLogger(ReplyServiceImpl.class);
 
     @Override
-    public ReplyResponse serviceReplyGetAllByPostId(Long postId) {
-        ReplyResponse replyResponse = new ReplyResponse();
+    public Page<ReplyEntity> serviceReplyGetAllByPostId(Long postId, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending) {
+        Pageable pageable = isDescending ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending() ) :  PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        Page<ReplyEntity> replyEntityList = null;
         List<ReplyDto> replyDtoList = new ArrayList<>();
         try {
-            List<ReplyEntity> replyEntityList = replyRepository.findByPost_PostId(postId);
-            replyEntityList.forEach(entity -> {
+            replyEntityList = replyRepository.findByPost_PostId(postId, pageable);
+            /*replyEntityList.forEach(entity -> {
                 ReplyDto replyDto = new ReplyDto();
+                replyDto.setReplyId(entity.getReplyId());
                 replyDto.setPostId(entity.getPost().getPostId());
                 replyDto.setReplyBody(entity.getReplyBody());
                 replyDto.setRepliedBy(entity.getRepliedBy());
@@ -36,14 +43,12 @@ public class ReplyServiceImpl implements ReplyService {
                 replyDtoList.add(replyDto);
             });
             replyResponse.setStatusMessage("SUCCESS");
-            replyResponse.setReplies(replyDtoList);
+            replyResponse.setReplies(replyDtoList);*/
         } catch (
                 Exception e) {
             logger.error("in servicePostReplyGetAllByPostId: ", e);
-            replyResponse.setStatusMessage("FAILURE");
         }
-
-        return replyResponse;
+        return replyEntityList;
     }
 
     @Override

@@ -1,18 +1,16 @@
 package com.beehive.service.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.beehive.dto.PostDto;
 import com.beehive.dto.ReplyDto;
 import com.beehive.entity.PostEntity;
 import com.beehive.entity.ReplyEntity;
-import com.beehive.repository.PostLikeRepository;
+import com.beehive.entity.projection.PostEntityProjection;
 import com.beehive.repository.PostRepository;
 import com.beehive.request.PostRequest;
 import com.beehive.request.ReplyRequest;
@@ -24,6 +22,11 @@ import com.beehive.service.ReplyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,17 +39,17 @@ public class PostServiceImpl implements PostService {
     Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
 
     @Override
-    public PostResponse servicePostGetAll(String username) {
+    public Page<PostDto> servicePostGetAll(String username, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending) {
 
-        PostResponse response = new PostResponse();
+        Pageable pageable = isDescending ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending() ) :  PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
+        Page<PostDto> response = null;
         try {
-            Iterable<PostEntity> posts = postRepository.findAll();
-            List<PostDto> postDtoList = new ArrayList<>();
-            posts.forEach(entity -> {
+            Page<PostEntityProjection> pagedResponse = postRepository.findAllPosts(pageable);
+            response = new PageImpl<PostDto>(pagedResponse.getContent().stream().map(entity -> {
+                PostDto postDto = new PostDto();
                 Long numberOfReplies = replyService.serviceReplyGetCountByPostId(entity.getPostId());
                 Long numberOfLikes = postLikeService.servicePostLikeGetCountByPostId(entity.getPostId());
                 Boolean isPostLikedByCurrentUser = postLikeService.servicePostLikeCheckIfUserExists(entity.getPostId(), username);
-                PostDto postDto = new PostDto();
                 postDto.setPostId(entity.getPostId());
                 postDto.setPostTitle(entity.getPostTitle());
                 postDto.setPostBody(entity.getPostBody());
@@ -55,14 +58,14 @@ public class PostServiceImpl implements PostService {
                 postDto.setNumberOfLikes(numberOfLikes);
                 postDto.setNumberOfReplies(numberOfReplies);
                 postDto.setPostLikedByCurrentUser(isPostLikedByCurrentUser);
-                postDtoList.add(postDto);
-            });
-            response.setPosts(postDtoList);
-            response.setStatusMessage("SUCCESS");
+
+                return postDto;
+            }).collect(Collectors.toList()), pageable, pagedResponse.getTotalElements());
+//            response.setStatusMessage("SUCCESS");
         } catch (
                 Exception e) {
             logger.error("in servicePostGetAll: ", e);
-            response.setStatusMessage("FAILURE");
+//            response.setStatusMessage("FAILURE");
         }
 
         return response;

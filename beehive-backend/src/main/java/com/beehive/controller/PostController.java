@@ -1,13 +1,19 @@
 package com.beehive.controller;
 
+import com.beehive.dto.PostDto;
+import com.beehive.dto.ReplyDto;
+import com.beehive.entity.PostEntity;
+import com.beehive.entity.ReplyEntity;
 import com.beehive.request.PostRequest;
 import com.beehive.request.ReplyRequest;
 import com.beehive.response.PostResponse;
 import com.beehive.response.ReplyResponse;
 import com.beehive.service.PostService;
+import com.beehive.service.ReplyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,15 +29,20 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin("*")
 public class PostController {
 
-    @Autowired
-    PostService postService;
+    @Autowired PostService postService;
+
+    @Autowired ReplyService replyService;
 
     private final Logger logger = LoggerFactory.getLogger(PostController.class);
 
     @GetMapping(value = "{username}/all")
-    public PostResponse getAllPosts(@PathVariable("username") String username) {
-        PostResponse response = postService.servicePostGetAll(username);
-        logger.info("Post Controller" + " in get All Posts() call " + response.getStatusMessage());
+    public Page<PostDto> getAllPosts(@PathVariable("username") String username,
+                                     @RequestParam(defaultValue = "0") Integer pageNumber,
+                                     @RequestParam(defaultValue = "10") Integer pageSize,
+                                     @RequestParam(defaultValue = "postedOn") String sortBy,
+                                     @RequestParam(defaultValue = "true") Boolean isDescending) {
+        Page<PostDto> response = postService.servicePostGetAll(username, pageNumber, pageSize, sortBy, isDescending);
+        logger.info("Post Controller" + " in get All Posts() call ");
         return response;
     }
 
@@ -38,6 +50,17 @@ public class PostController {
     public PostResponse getAllPostsByUser(@PathVariable("username") String username) {
         PostResponse response = postService.servicePostGetAllByUserName(username);
         logger.info("Post Controller" + " in get All Posts() call " + response.getStatusMessage());
+        return response;
+    }
+
+    @GetMapping(value = "/{postId}/replies")
+    public Page<ReplyEntity> getAllPostsByUser(@PathVariable("postId") Long postId,
+                                               @RequestParam(defaultValue = "0") Integer pageNumber,
+                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                               @RequestParam(defaultValue = "repliedOn") String sortBy,
+                                               @RequestParam(defaultValue = "true") Boolean isDescending) {
+        Page<ReplyEntity> response = replyService.serviceReplyGetAllByPostId(postId, pageNumber, pageSize, sortBy, isDescending);
+        logger.info("Post Controller" + " in get All Replies() call ");
         return response;
     }
 
