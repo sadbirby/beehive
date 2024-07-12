@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
 
-const ForgotPasswordComponent = () => {
+export function ForgotPasswordComponent() {
   const { updateSelectedPage } = useGlobalAppContext();
 
   const onLoginClick = () => {
@@ -19,6 +19,4 @@ const ForgotPasswordComponent = () => {
       </div>
     </>
   );
-};
-
-export default ForgotPasswordComponent;
+}

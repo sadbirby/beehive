@@ -1,13 +1,14 @@
 package com.beehive.repository;
 
-import java.util.Optional;
-
 import com.beehive.entity.UserEntity;
+import jakarta.transaction.Transactional;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public interface UserRepository extends JpaRepository<UserEntity, String> {
 
-    Optional<UserEntity> findByUsername(String username);
+  Optional<UserEntity> findByUsername(String username);
 }

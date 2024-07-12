@@ -1,4 +1,4 @@
-import { HttpPost } from "@/service/api-service";
+import { HttpPost } from "@/utils/api-service";
 import { AUTHENTICATE } from "../../constants/endpoints";
 
 export const authenticate = async (username, password) => {

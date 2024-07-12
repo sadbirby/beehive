@@ -1,16 +1,17 @@
 package com.beehive.service;
 
-import com.beehive.request.AuthenticationRequest;
 import com.beehive.request.UserRequest;
 import com.beehive.response.UserResponse;
 
 public interface UserService {
 
-    UserResponse serviceUserGetAll();
+  Boolean serviceUserCheckIfExists(String username);
 
-    UserResponse serviceUserRegister(UserRequest request);
+  UserResponse serviceUserGetAll();
 
-    UserResponse serviceUserForgotPassword(UserRequest request);
+  UserResponse serviceUserRegister(UserRequest request);
 
-    UserResponse serviceUserSearch(String username);
+  UserResponse serviceUserForgotPassword(UserRequest request);
+
+  UserResponse serviceUserSearch(String username);
 }

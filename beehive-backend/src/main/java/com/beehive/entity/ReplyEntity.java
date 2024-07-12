@@ -1,7 +1,5 @@
 package com.beehive.entity;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,70 +10,74 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "replies")
 public class ReplyEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long replyId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "postId", nullable = false)
-    private PostEntity post;
-    @Column(columnDefinition = "LONGTEXT")
-    private String replyBody;
-    private String repliedBy;
-    private Date repliedOn;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  private Long replyId;
 
-    public ReplyEntity() {
-    }
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "postId", nullable = false)
+  private PostEntity post;
 
-    public ReplyEntity(Date repliedOn, String repliedBy, String replyBody, PostEntity post, Long replyId) {
-        this.repliedOn = repliedOn;
-        this.repliedBy = repliedBy;
-        this.replyBody = replyBody;
-        this.post = post;
-        this.replyId = replyId;
-    }
+  @Column(columnDefinition = "LONGTEXT")
+  private String replyBody;
 
-    public Long getReplyId() {
-        return replyId;
-    }
+  private String repliedBy;
+  private Date repliedOn;
 
-    public void setReplyId(Long replyId) {
-        this.replyId = replyId;
-    }
+  public ReplyEntity() {}
 
-    @JsonBackReference
-    public PostEntity getPost() {
-        return post;
-    }
+  public ReplyEntity(
+      Date repliedOn, String repliedBy, String replyBody, PostEntity post, Long replyId) {
+    this.repliedOn = repliedOn;
+    this.repliedBy = repliedBy;
+    this.replyBody = replyBody;
+    this.post = post;
+    this.replyId = replyId;
+  }
 
-    public void setPost(PostEntity post) {
-        this.post = post;
-    }
+  public Long getReplyId() {
+    return replyId;
+  }
 
-    public String getReplyBody() {
-        return replyBody;
-    }
+  public void setReplyId(Long replyId) {
+    this.replyId = replyId;
+  }
 
-    public void setReplyBody(String replyBody) {
-        this.replyBody = replyBody;
-    }
+  @JsonBackReference
+  public PostEntity getPost() {
+    return post;
+  }
 
-    public String getRepliedBy() {
-        return repliedBy;
-    }
+  public void setPost(PostEntity post) {
+    this.post = post;
+  }
 
-    public void setRepliedBy(String repliedBy) {
-        this.repliedBy = repliedBy;
-    }
+  public String getReplyBody() {
+    return replyBody;
+  }
 
-    public Date getRepliedOn() {
-        return repliedOn;
-    }
+  public void setReplyBody(String replyBody) {
+    this.replyBody = replyBody;
+  }
 
-    public void setRepliedOn(Date repliedOn) {
-        this.repliedOn = repliedOn;
-    }
+  public String getRepliedBy() {
+    return repliedBy;
+  }
+
+  public void setRepliedBy(String repliedBy) {
+    this.repliedBy = repliedBy;
+  }
+
+  public Date getRepliedOn() {
+    return repliedOn;
+  }
+
+  public void setRepliedOn(Date repliedOn) {
+    this.repliedOn = repliedOn;
+  }
 }

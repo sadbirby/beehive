@@ -34,6 +34,12 @@ export const reducer = (state, action) => {
         postData: action.payload,
       };
     }
+    case globalActionTypes.UPDATE_SELECTED_POST: {
+      return {
+        ...state,
+        selectedPost: action.payload,
+      };
+    }
     case globalActionTypes.UPDATE_COLOR_THEME: {
       return {
         ...state,

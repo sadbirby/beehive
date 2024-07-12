@@ -1,21 +1,54 @@
 /* eslint-disable react/prop-types */
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { fetchLoggedInUserDetails } from "../home/home-helper";
 import { authenticate } from "./login-helper";
+
+const formSchema = z
+  .object({
+    username: z
+      .string()
+      .min(4, { message: "Username shorter than 4 characters not accepted!" })
+      .max(20, { message: "Username longer than 20 characters not accepted!" }),
+
+    password: z
+      .string()
+      .min(8, { message: "Password shorter than 8 characters not accepted!" })
+      .max(32, { message: "Password longer than 32 characters not accepted!" })
+      .regex(
+        new RegExp(
+          "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,32}$",
+        ),
+        {
+          message:
+            "Password must contain minimum 8 and maximum 32 characters, at least one uppercase letter, one lowercase letter, one number and one special character",
+        },
+      ),
+  })
+  .required();
 
 export function LoginComponent() {
   const {
@@ -26,27 +59,15 @@ export function LoginComponent() {
     updateSelectedPage,
   } = useGlobalAppContext();
 
-  const [requestBody, setRequestBody] = useState({
-    username: "",
-    password: "",
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
   });
 
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const handleChange = (prop) => (event) => {
-    setErrorMessage("");
-    setRequestBody({ ...requestBody, [prop]: event.target.value });
-  };
-
-  const onForgotPasswordClick = () => {
-    updateSelectedPage(pages.PAGE_FORGOT_PASSWORD);
-  };
-
-  const onRegisterClick = () => {
-    updateSelectedPage(pages.PAGE_REGISTER);
-  };
-
-  const onLoginClick = async () => {
+  const onLoginClick = async (requestBody) => {
     try {
       showLoader("Logging in");
       let username = requestBody.username;
@@ -61,10 +82,10 @@ export function LoginComponent() {
         localStorage.setItem("userData", JSON.stringify(userData));
         // display toast and update page
         toast.success("Logged In");
+        form.reset();
         updateSelectedPage(pages.PAGE_HOME);
       }
     } catch (e) {
-      setErrorMessage("Incorrect Credentials");
       toast.error("Incorrect Credentials");
       console.error("Error in login-component", e);
     } finally {
@@ -72,60 +93,67 @@ export function LoginComponent() {
     }
   };
 
-  return loaderEnabled ? (
-    <div className="flex w-full flex-grow flex-col items-center justify-center gap-4">
-      <LoadingSpinner />
-      <div>
-        <h4 className="text-sm font-extralight">{loaderMessage}</h4>
-      </div>
-    </div>
-  ) : (
-    <Card className="mx-auto max-w-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
-        <CardDescription>
-          Enter your username below to login to your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              type="text"
-              onChange={handleChange("username")}
-              required
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onLoginClick)}
+        className="w-full space-y-8"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-light">
+              Pick Up Where You Left Off
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid gap-2">
-            <div className="flex items-center">
-              <Label htmlFor="password">Password</Label>
-              <a
-                className="ml-auto inline-block cursor-pointer text-sm underline"
-                onClick={onForgotPasswordClick}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter>
+            {loaderEnabled ? (
+              <Button
+                disabled
+                className="w-full rounded-full text-base font-normal"
               >
-                Forgot password?
-              </a>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              onChange={handleChange("password")}
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full" onClick={onLoginClick}>
-            Login
-          </Button>
-        </div>
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <a className="cursor-pointer underline" onClick={onRegisterClick}>
-            Sign up
-          </a>
-        </div>
-      </CardContent>
-    </Card>
+                <Loader2 className="mr-2 animate-spin" />
+                {loaderMessage}
+              </Button>
+            ) : (
+              <Button
+                className="w-full rounded-full text-base font-normal"
+                size="lg"
+                type="submit"
+              >
+                Log In
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 }

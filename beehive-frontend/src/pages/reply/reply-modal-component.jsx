@@ -1,23 +1,21 @@
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+  Input,
+} from "@/components/ui";
 import { useGlobalAppContext } from "@/context/app-context";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,7 +27,12 @@ const FormSchema = z.object({
   }),
 });
 
-export const ReplyAreaComponent = ({ open, onOpenChange, postId, onPageIndexChange }) => {
+export function ReplyModalComponent({
+  open,
+  onOpenChange,
+  postId,
+  onPageIndexChange,
+}) {
   const { loaderEnabled, loaderMessage, userData, showLoader, hideLoader } =
     useGlobalAppContext();
 
@@ -49,32 +52,22 @@ export const ReplyAreaComponent = ({ open, onOpenChange, postId, onPageIndexChan
         userData.username,
       );
       if (response.statusMessage === "SUCCESS") {
-        toast.success("Replied To Post.");
+        toast.success("Reply Added");
         form.reset();
         onPageIndexChange(0);
         onOpenChange(!open);
       }
     } catch (e) {
-      toast.error("Cannot Reply To Post. Please Try Again.");
+      toast.error("Cannot Reply To Post");
       console.error("Error in reply-area-component", e);
     } finally {
       hideLoader();
     }
   };
 
-  return loaderEnabled ? (
-    <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
-      <LoadingSpinner />
-      <div>
-        <h4 className="text-sm font-extralight">{loaderMessage}</h4>
-      </div>
-    </div>
-  ) : (
+  return (
     <Dialog modal={true} open={open} onOpenChange={onOpenChange}>
-      {/* <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
-      </DialogTrigger> */}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="min-h-[60%] min-w-[40%] sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Reply To This Post</DialogTitle>
           <DialogDescription>
@@ -93,7 +86,7 @@ export const ReplyAreaComponent = ({ open, onOpenChange, postId, onPageIndexChan
                 <FormItem>
                   <FormControl>
                     <Input
-                      className="h-16"
+                      className="h-32"
                       placeholder="Add A Reply"
                       {...field}
                     />
@@ -103,11 +96,26 @@ export const ReplyAreaComponent = ({ open, onOpenChange, postId, onPageIndexChan
               )}
             />
             <DialogFooter>
-              <Button type="submit">Reply</Button>
+              {loaderEnabled ? (
+                <Button
+                  disabled
+                  className="w-full rounded-full text-base font-normal"
+                >
+                  <Loader2 className="mr-2 animate-spin" />
+                  {loaderMessage}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full rounded-full text-base font-normal"
+                  type="submit"
+                >
+                  Reply
+                </Button>
+              )}
             </DialogFooter>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -1,38 +1,29 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { pages } from "@/constants/pages";
+import { Button, LoadingSpinner } from "@/components/ui";
 import { useGlobalAppContext } from "@/context/app-context";
-import { getRelativeDate } from "@/service/get-relative-date";
 import {
-  ArrowBigUp,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  MessageSquareIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { PostCardComponent } from "../post/post-card-component";
 import { fetchAllPosts } from "./home-helper";
 
-const HomeComponent = () => {
+export function HomeComponent() {
   const {
     loaderEnabled,
     loaderMessage,
     userData,
     postData,
     updateSelectedPage,
+    updateSelectedPost,
     updatePostData,
     showLoader,
     hideLoader,
   } = useGlobalAppContext();
+  const username = localStorage.getItem("username");
   const [postResponse, setPostResponse] = useState([]);
   const pageIndexRef = useRef(0);
 
@@ -46,7 +37,12 @@ const HomeComponent = () => {
   const getAllPosts = async (pageNumber) => {
     try {
       showLoader("Fetching Posts...");
-      setPostResponse(await fetchAllPosts(userData.username, pageNumber));
+      await fetchAllPosts(username, pageNumber)
+        .then((res) => {
+          setPostResponse(res);
+          return res.content;
+        })
+        .then((res) => updatePostData(res));
     } catch (e) {
       console.error("Error in home-component", e);
     } finally {
@@ -59,68 +55,22 @@ const HomeComponent = () => {
     await getAllPosts(newIndex);
   };
 
-  const PostCardComponent = ({ post }) => {
-    return (
-      <Card className="inline-flex w-full cursor-pointer px-0 py-4 hover:bg-secondary">
-        <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
-          <div>
-            <Avatar className="rounded-none">
-              <AvatarFallback className="rounded-none bg-primary/[50%]">
-                {post.postedBy.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-        <div className="w-full flex-initial">
-          <CardHeader className="py-0 pl-4 pr-10">
-            <div className="grid grid-cols-2 gap-0">
-              <div>
-                <p className="text-xs">{post.postedBy}</p>
-              </div>
-              <div className="place-self-end">
-                <CardDescription className="text-right text-xs">
-                  {getRelativeDate(post.postedOn)}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="py-1 pl-4 pr-10">
-            <p className="text-sm font-bold">{post.postTitle}</p>
-          </CardContent>
-          <CardContent className="line-clamp-6 py-1 pl-4 pr-10">
-            <p className="text-sm">{post.postBody}</p>
-          </CardContent>
-          <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
-            <div className="inline-flex gap-4">
-              <div className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4">
-                <ArrowBigUp />
-                <p className="text-center text-xs font-extralight">
-                  {post.numberOfLikes}
-                </p>
-              </div>
-              <div className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4">
-                <MessageSquareIcon />
-                <p className="text-center text-xs font-extralight">
-                  {post.numberOfReplies}
-                </p>
-              </div>
-            </div>
-          </CardFooter>
-        </div>
-      </Card>
-    );
-  };
-
-  const listItems = postResponse.content?.map((post) => {
+  const listItems = postData.map((post) => {
     return (
       <div
         key={post.postId}
         onClick={() => {
-          updatePostData(post);
-          updateSelectedPage(pages.PAGE_REPLY);
+          updateSelectedPost(post);
+          // updateSelectedPage(pages.PAGE_REPLY);
         }}
       >
-        <PostCardComponent post={post} />
+        <Link key={post.postId} to={`/post/${post.postId}`}>
+          <PostCardComponent
+            className="cursor-pointer hover:bg-secondary/[25%]"
+            lineClamp={"line-clamp-4"}
+            post={post}
+          />
+        </Link>
       </div>
     );
   });
@@ -129,13 +79,13 @@ const HomeComponent = () => {
     <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
       <LoadingSpinner />
       <div>
-        <h4 className="text-sm font-extralight">{loaderMessage}</h4>
+        <h4 className="font-extralight">{loaderMessage}</h4>
       </div>
     </div>
   ) : (
     <div className="grid grid-cols-1 gap-2">
-      <Card className="px-0 py-4"></Card>
-      <div className="grid grid-cols-1 gap-4">{listItems}</div>
+      {/* <Card className="px-0 py-4"></Card> */}
+      <div className="grid grid-cols-1 gap-2">{listItems}</div>
       <div className="flex-row items-center justify-between gap-2 px-0 py-4">
         <div className="flex items-center justify-center space-x-2">
           <Button
@@ -164,7 +114,7 @@ const HomeComponent = () => {
             <span className="sr-only">Go to previous page</span>
             <ChevronLeftIcon className="h-4 w-4" />
           </Button>
-          <div className="flex w-1/6 items-center justify-center text-sm font-medium">
+          <div className="flex w-1/6 items-center justify-center font-medium">
             Page {postResponse.number + 1} of {postResponse.totalPages}
           </div>
           <Button
@@ -195,22 +145,7 @@ const HomeComponent = () => {
           </Button>
         </div>
         {/* Todo: jump to page */}
-        {/* <div className="flex items-center justify-center w-full gap-2">
-                    <p className="text-xs font-bold">Jump To</p>
-                    <Input
-                        className="h-8 w-32 "
-                        type="number"
-                        onChange={e => inputRef.current = e.target.value}
-                    />
-                    <Button
-                        className="h-8 w-8 "
-                        onClick={() => onPageIndexChange(inputRef.current - 1)}
-                        disabled={inputRef.current < 1 || inputRef.current > postResponse.totalPages}
-                    >Go</Button>
-                </div> */}
       </div>
     </div>
   );
-};
-
-export default HomeComponent;
+}

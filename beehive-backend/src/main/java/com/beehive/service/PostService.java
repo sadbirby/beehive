@@ -9,22 +9,23 @@ import org.springframework.data.domain.Page;
 
 public interface PostService {
 
-    Page<PostDto> servicePostGetAll(String username, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending);
+  PostResponse servicePostGetByPostId(Long postId, String username);
 
-    PostResponse servicePostGetAllByUserName(String username);
+  Page<PostDto> servicePostGetAll(
+      String username, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending);
 
+  Page<PostDto> servicePostGetAllByUserName(
+      String username, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending);
 
-    PostResponse servicePostAdd(PostRequest request, String username);
+  PostResponse servicePostAdd(PostRequest request, String username);
 
-    ReplyResponse servicePostAddReply(ReplyRequest request);
+  ReplyResponse servicePostAddReply(ReplyRequest request);
 
-   /* PostResponse servicePostDelete(String userName, String postId);
+  PostResponse servicePostUpvote(Long postId, String username);
 
-    PostResponse servicePostLike(PostRequest request, String username);
+  PostResponse servicePostRevertUpvote(Long postId, String username);
 
-    PostResponse servicePostUnlike(PostRequest request, String username);
-
-    PostResponse servicePostUpdate(PostRequest request);
-
-    PostResponse servicePostFindPopularOfLastMonth();*/
+  /* PostResponse servicePostDelete(String userName, String postId);
+  PostResponse servicePostUpdate(PostRequest request);
+  PostResponse servicePostFindPopularOfLastMonth();*/
 }

@@ -5,7 +5,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
@@ -13,6 +12,9 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
@@ -21,11 +23,9 @@ import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
 import { CircleUser, Hexagon, Home, Menu, Users } from "lucide-react";
 import { useEffect, useState } from "react";
+import { NavLink, Outlet } from "react-router-dom";
 import { toast } from "sonner";
-import CreatePostComponent from "./create-post/create-post-component";
-import HomeComponent from "./home/home-component";
-import MyTweetsComponent from "./my-tweets/my-tweets-component";
-import ReplyComponent from "./reply/reply-component";
+import { HomeComponent } from "../home/home-component";
 
 const RootPostComponent = () => {
   const {
@@ -39,6 +39,7 @@ const RootPostComponent = () => {
     updateTheme,
   } = useGlobalAppContext();
   const [activeComponent, setActiveComponent] = useState(<HomeComponent />);
+  const currentUser = localStorage.getItem("username");
 
   useEffect(() => {
     const initialise = async () => {
@@ -48,14 +49,8 @@ const RootPostComponent = () => {
       localStorage.setItem("color-theme", colorTheme);
       root.classList.add(colorTheme);
 
-      // update user data
-      if (userData !== undefined) {
-        let user = JSON.parse(localStorage.getItem("userData"));
-        updateUserData(user.data.users[0]);
-      }
-
       // page change logic
-      switch (selectedPage) {
+      /* switch (selectedPage) {
         case pages.PAGE_HOME: {
           console.log("set home component");
           setActiveComponent(<HomeComponent />);
@@ -68,7 +63,7 @@ const RootPostComponent = () => {
         }
         case pages.PAGE_MY_TWEETS: {
           console.log("set mytweets component");
-          setActiveComponent(<MyTweetsComponent />);
+          setActiveComponent(<MyProfileComponent />);
           break;
         }
         case pages.PAGE_CREATE_POST: {
@@ -78,10 +73,10 @@ const RootPostComponent = () => {
         }
         default:
           setActiveComponent(<HomeComponent />);
-      }
+      } */
     };
     initialise();
-  }, [colorTheme, selectedPage]);
+  }, [colorTheme]);
 
   const activeTabStyle = (page) => {
     return page === selectedPage
@@ -97,7 +92,7 @@ const RootPostComponent = () => {
     showLoader("Logging out");
     localStorage.clear();
     toast.info("Logged Out");
-    updateSelectedPage(pages.PAGE_LOGIN);
+    updateSelectedPage(pages.PAGE_LANDING);
     hideLoader();
   };
 
@@ -107,33 +102,40 @@ const RootPostComponent = () => {
         <div className="hidden bg-background lg:block">
           <div className="sticky left-0 top-0 flex h-full max-h-screen flex-col gap-2 border-r">
             <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
-              <div className="flex items-center gap-2 text-lg font-extrabold">
+              <div className="flex items-center gap-2">
                 <Hexagon className="h-6 w-6" />
-                <span className="">Beehive</span>
+                <h1 className="text-3xl font-extrabold">Beehive</h1>
               </div>
             </div>
             <div className="flex-1">
-              <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-                <a
-                  className={activeTabStyle(pages.PAGE_HOME).full}
-                  onClick={() => updateSelectedPage(pages.PAGE_HOME)}
+              <nav className="grid items-start px-2 py-1">
+                <NavLink
+                  to="/home"
+                  className={({ isActive }) => {
+                    return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+                  }}
+                  // onClick={() => updateSelectedPage(pages.PAGE_HOME)}
                 >
                   <Home className="h-4 w-4" />
                   Home
-                </a>
-                <a
-                  className={activeTabStyle(pages.PAGE_MY_TWEETS).full}
-                  onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
+                </NavLink>
+                <NavLink
+                  key={currentUser}
+                  to={`/${currentUser}/posts`}
+                  className={({ isActive }) => {
+                    return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+                  }}
+                  // onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
                 >
                   <Users className="h-4 w-4" />
                   Profile
-                </a>
+                </NavLink>
               </nav>
             </div>
             <div className="mt-auto p-4">
               <Button
                 size="lg"
-                className="w-full"
+                className="w-full rounded-full text-base font-normal"
                 onClick={() => updateSelectedPage(pages.PAGE_CREATE_POST)}
               >
                 Create Post
@@ -158,37 +160,47 @@ const RootPostComponent = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
-                <nav className="grid gap-2 font-medium">
-                  <SheetClose asChild>
-                    <a className="flex items-center gap-2 pb-2 text-lg font-extrabold">
-                      <Hexagon className="h-6 w-6" />
-                      <span className="sr-only">Beehive</span>
-                    </a>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <a
-                      className={activeTabStyle(pages.PAGE_HOME).collapsed}
-                      onClick={() => updateSelectedPage(pages.PAGE_HOME)}
-                    >
-                      <Home className="h-5 w-5" />
-                      Home
-                    </a>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <a
-                      className={activeTabStyle(pages.PAGE_MY_TWEETS).collapsed}
-                      onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
-                    >
-                      <Users className="h-5 w-5" />
-                      Profile
-                    </a>
-                  </SheetClose>
-                </nav>
+                <div className="flex-1">
+                  <nav className="grid items-start gap-2 p-1">
+                    <SheetClose asChild>
+                      <SheetHeader>
+                        <SheetTitle>
+                          <NavLink className="flex items-center gap-2 pb-2 text-lg font-extrabold">
+                            <Hexagon className="h-6 w-6" />
+                            <h1 className="text-3xl font-extrabold">Beehive</h1>
+                          </NavLink>
+                        </SheetTitle>
+                        <SheetDescription />
+                      </SheetHeader>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <NavLink
+                        to="/home"
+                        className={activeTabStyle(pages.PAGE_HOME).collapsed}
+                        // onClick={() => updateSelectedPage(pages.PAGE_HOME)}
+                      >
+                        <Home className="h-5 w-5" />
+                        Home
+                      </NavLink>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <NavLink
+                        className={
+                          activeTabStyle(pages.PAGE_MY_TWEETS).collapsed
+                        }
+                        onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
+                      >
+                        <Users className="h-5 w-5" />
+                        Profile
+                      </NavLink>
+                    </SheetClose>
+                  </nav>
+                </div>
                 <div className="mt-auto">
                   <SheetClose asChild>
                     <Button
                       size="lg"
-                      className="w-full"
+                      className="w-full rounded-full text-base font-normal"
                       onClick={() => updateSelectedPage(pages.PAGE_CREATE_POST)}
                     >
                       Create Post
@@ -208,10 +220,8 @@ const RootPostComponent = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{userData.username}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                <DropdownMenuLabel>{currentUser}</DropdownMenuLabel>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <div className="flex items-center space-x-4">
                     <Label className="font-normal" htmlFor="dark-mode">
@@ -229,14 +239,14 @@ const RootPostComponent = () => {
                     />
                   </div>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
           {/* Header ends */}
-          <div className="flex flex-1 flex-col gap-4 p-3 lg:gap-6 lg:p-4">
-            {activeComponent}
+          <div className="flex flex-1 flex-col gap-4 bg-secondary/[15%] p-3 lg:gap-6 lg:p-4">
+            {/* {activeComponent} */}
+            <Outlet />
           </div>
         </div>
       </div>

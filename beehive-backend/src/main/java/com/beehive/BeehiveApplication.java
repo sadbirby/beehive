@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin("*")
 public class BeehiveApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(BeehiveApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(BeehiveApplication.class, args);
+  }
 }

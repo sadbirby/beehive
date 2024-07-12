@@ -11,7 +11,8 @@ const initialState = {
   loaderEnabled: false,
   loaderMessage: "",
   userData: {},
-  postData: {},
+  postData: [],
+  selectedPost: {},
   colorTheme: localStorage.getItem("color-theme") || "dark",
 };
 
@@ -54,6 +55,13 @@ const AppProvider = ({ children, ...props }) => {
     });
   };
 
+  const updateSelectedPost = (selectedPost) => {
+    return dispatch({
+      type: globalActionTypes.UPDATE_SELECTED_POST,
+      payload: selectedPost,
+    });
+  };
+
   const updateTheme = (colorTheme) => {
     return dispatch({
       type: globalActionTypes.UPDATE_COLOR_THEME,
@@ -69,6 +77,7 @@ const AppProvider = ({ children, ...props }) => {
         showLoader,
         hideLoader,
         updateSelectedPage,
+        updateSelectedPost,
         updateUserData,
         updatePostData,
         updateTheme,

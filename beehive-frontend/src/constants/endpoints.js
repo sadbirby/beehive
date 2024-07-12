@@ -9,6 +9,7 @@ export const REGISTER = USER_BASE + "/register";
 export const FORGOT_PASSWD = USER_BASE + "/forgot-password";
 export const ALL_USERS = USER_BASE + "/all";
 export const GET_USER = USER_BASE + "/search/";
+export const CHECK_USER = USER_BASE + "/check/";
 
 /* Tweet */
 export const POST_BASE = BASE_URI + "/api/v1.0/posts";

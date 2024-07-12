@@ -5,7 +5,7 @@ import {
   POPULAR_TWEETS,
   POST_BASE,
 } from "@/constants/endpoints";
-import { HttpGet, HttpPost } from "@/service/api-service";
+import { HttpGet, HttpPost } from "@/utils/api-service";
 
 export const fetchLoggedInUserDetails = async (username) => {
   let apiUrl = BASE_URI + GET_USER + username;
@@ -21,7 +21,7 @@ export const fetchAllPosts = async (username, pageNumber = 0) => {
   try {
     response = await HttpGet(apiUrl, parameters, {});
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return response.data;
 };

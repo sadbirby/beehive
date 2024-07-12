@@ -5,35 +5,36 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
 } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
 import { useGlobalAppContext } from "@/context/app-context";
-import { getRelativeDate } from "@/service/get-relative-date";
+import { getRelativeDate } from "@/utils/get-relative-date";
 import {
-  ArrowBigUp,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
-  MessageSquareIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ReplyAreaComponent } from "./reply-area-component";
+import { useParams } from "react-router-dom";
+import { PostCardComponent } from "../post/post-card-component";
 import { fetchAllReplies } from "./reply-helper";
+import { ReplyModalComponent } from "./reply-modal-component";
 
-const ReplyComponent = () => {
-  const { loaderEnabled, loaderMessage, postData, showLoader, hideLoader } =
+export function ReplyComponent() {
+  const { loaderEnabled, loaderMessage, selectedPost, showLoader, hideLoader } =
     useGlobalAppContext();
   const [openModal, setOpenModal] = useState(false);
   const [replyResponse, setReplyResponse] = useState({});
   const pageIndexRef = useRef(0);
   const inputRef = useRef(1);
 
+  const { postId } = useParams();
+  console.info("Post ID: ", postId);
+
   useEffect(() => {
-    console.log("INSIDE REPLY.JSX USEEFFECT");
     const initialise = async () => {
       await getAllReplies(pageIndexRef.current);
     };
@@ -43,8 +44,9 @@ const ReplyComponent = () => {
   const getAllReplies = async (pageNumber) => {
     try {
       showLoader("Fetching Replies...");
-      setReplyResponse(await fetchAllReplies(postData.postId, pageNumber));
-      console.log("GetAllReplies", replyResponse);
+      await fetchAllReplies(selectedPost.postId, pageNumber).then((res) =>
+        setReplyResponse(res),
+      );
     } catch (e) {
       console.error("Error in reply-component");
     } finally {
@@ -57,67 +59,14 @@ const ReplyComponent = () => {
     await getAllReplies(newIndex);
   };
 
-  const PostCardComponent = () => {
-    return (
-      <Card className="inline-flex w-full border-none bg-secondary px-0 py-4">
-        <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
-          <div>
-            <Avatar className="">
-              <AvatarFallback className="">
-                {postData.postedBy.substring(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-        <div className="w-full flex-initial">
-          <CardHeader className="py-0 pl-4 pr-10">
-            <div className="grid grid-cols-2 gap-0">
-              <div>
-                <p className="text-xs">{postData.postedBy}</p>
-              </div>
-              <div className="place-self-end">
-                <CardDescription className="text-right text-xs">
-                  {getRelativeDate(postData.postedOn)}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="py-1 pl-4 pr-10">
-            <p className="text-sm font-bold">{postData.postTitle}</p>
-          </CardContent>
-          <CardContent className="py-1 pl-4 pr-10">
-            <p className="text-sm">{postData.postBody}</p>
-          </CardContent>
-          <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
-            <div className="inline-flex gap-4">
-              <div className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4 hover:bg-secondary/[80%]">
-                <ArrowBigUp />
-                <p className="text-center text-xs">{postData.numberOfLikes}</p>
-              </div>
-              <div
-                className="inline-flex items-center gap-2 border bg-secondary py-1 pl-2 pr-4 hover:bg-secondary/[80%]"
-                onClick={() => setOpenModal(!openModal)}
-              >
-                <MessageSquareIcon />
-                <p className="text-center text-xs">
-                  {postData.numberOfReplies}
-                </p>
-              </div>
-            </div>
-          </CardFooter>
-        </div>
-      </Card>
-    );
-  };
-
   const listItems = replyResponse.content?.map((reply, index, { length }) => {
     return (
       <div key={reply.replyId}>
-        <Card className="inline-flex w-full border-none bg-inherit px-0 py-4 shadow-none hover:bg-secondary">
+        <Card className="inline-flex w-full border-none px-0 py-4 shadow-none">
           <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
             <div>
-              <Avatar>
-                <AvatarFallback>
+              <Avatar className="rounded-none border-2">
+                <AvatarFallback className="rounded-none bg-secondary/[50%] font-mono">
                   {reply.repliedBy.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -127,7 +76,7 @@ const ReplyComponent = () => {
             <CardHeader className="py-0 pl-4 pr-10">
               <div className="grid grid-cols-2 gap-0">
                 <div>
-                  <p className="text-xs">{reply.repliedBy}</p>
+                  <p className="text-foreground/[65%]">{reply.repliedBy}</p>
                 </div>
                 <div className="place-self-end">
                   <CardDescription className="text-right text-xs">
@@ -137,11 +86,11 @@ const ReplyComponent = () => {
               </div>
             </CardHeader>
             <CardContent className="py-1 pl-4 pr-10">
-              <p className="text-sm">{reply.replyBody}</p>
+              <p>{reply.replyBody}</p>
             </CardContent>
           </div>
         </Card>
-        <Separator className="mt-2" hidden={index + 1 === length} />
+        <Separator className="" hidden={index + 1 === length} />
       </div>
     );
   });
@@ -150,22 +99,26 @@ const ReplyComponent = () => {
     <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
       <LoadingSpinner />
       <div>
-        <h4 className="text-sm font-extralight">{loaderMessage}</h4>
+        <h4>{loaderMessage}</h4>
       </div>
     </div>
   ) : (
     <div className="grid grid-cols-1 gap-2">
       <div className="grid grid-cols-1 gap-3">
-        <PostCardComponent />
-        <ReplyAreaComponent
+        <PostCardComponent
+          post={selectedPost}
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+        />
+        <ReplyModalComponent
           open={openModal}
           onOpenChange={setOpenModal}
-          postId={postData.postId}
+          postId={selectedPost.postId}
           onPageIndexChange={onPageIndexChange}
         />
         {replyResponse.totalElements > 0 ? (
           <>
-            <div className="grid grid-cols-1 gap-2 rounded border bg-secondary/[25%] p-2">
+            <div className="grid grid-cols-1 gap-0 rounded-2xl border bg-background p-0 shadow">
               {listItems}
             </div>
             <div className="flex-row items-center justify-between gap-2 px-0 py-4">
@@ -196,7 +149,7 @@ const ReplyComponent = () => {
                   <span className="sr-only">Go to previous page</span>
                   <ChevronLeftIcon className="h-4 w-4" />
                 </Button>
-                <div className="flex w-1/6 items-center justify-center text-sm font-medium">
+                <div className="flex w-1/6 items-center justify-center">
                   Page {replyResponse.number + 1} of {replyResponse.totalPages}
                 </div>
                 <Button
@@ -250,6 +203,4 @@ const ReplyComponent = () => {
       </div>
     </div>
   );
-};
-
-export default ReplyComponent;
+}

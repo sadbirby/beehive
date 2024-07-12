@@ -1,5 +1,5 @@
 import { POST_BASE } from "@/constants/endpoints";
-import { HttpPost } from "@/service/api-service";
+import { HttpPost } from "@/utils/api-service";
 
 export const createPost = async (username, post) => {
   let apiUrl = POST_BASE + "/" + username + "/add";
@@ -7,7 +7,7 @@ export const createPost = async (username, post) => {
   try {
     response = await HttpPost(apiUrl, { post: post }, {});
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
   return response.data;
 };
