@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { z } from "zod";
 
 import {
@@ -79,13 +78,7 @@ const formSchema = z
   );
 
 export function RegisterComponent() {
-  const {
-    loaderEnabled,
-    loaderMessage,
-    showLoader,
-    hideLoader,
-    updateSelectedPage,
-  } = useGlobalAppContext();
+  const { loaderEnabled, showLoader, hideLoader } = useGlobalAppContext();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -188,7 +181,6 @@ export function RegisterComponent() {
             {loaderEnabled ? (
               <Button disabled className="w-full text-base font-normal">
                 <Loader2 className="mr-2 animate-spin" />
-                {loaderMessage}
               </Button>
             ) : (
               <Button

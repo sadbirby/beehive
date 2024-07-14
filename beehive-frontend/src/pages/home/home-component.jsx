@@ -14,10 +14,7 @@ import { fetchAllPosts } from "./home-helper";
 export function HomeComponent() {
   const {
     loaderEnabled,
-    loaderMessage,
-    userData,
     postData,
-    updateSelectedPage,
     updateSelectedPost,
     updatePostData,
     showLoader,

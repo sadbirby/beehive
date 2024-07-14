@@ -30,8 +30,10 @@ const formSchema = z
   .required();
 
 export function CreatePostComponent() {
-  const { loaderEnabled, loaderMessage, userData, showLoader, hideLoader } =
+  const { loaderEnabled, loaderMessage, showLoader, hideLoader } =
     useGlobalAppContext();
+
+  const username = localStorage.getItem("username");
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -44,7 +46,7 @@ export function CreatePostComponent() {
   const onSubmit = async (post) => {
     try {
       showLoader("Creating Post...");
-      const response = await createPost(userData.username, post);
+      const response = await createPost(username, post);
       if (response.statusMessage === "SUCCESS") {
         toast.success("Post Created");
         form.reset();

@@ -41,15 +41,14 @@ const FormSchema = z.object({
 });
 
 export function ReplyComponent() {
-  const { loaderEnabled, selectedPost, loaderMessage, showLoader, hideLoader } =
-    useGlobalAppContext();
+  const { loaderEnabled, showLoader, hideLoader } = useGlobalAppContext();
   const { postId } = useParams();
   const [currentPost, setCurrentPost] = useState({});
   const [replyResponse, setReplyResponse] = useState({});
   const [replyList, setReplyList] = useState([]);
   const pageIndexRef = useRef(0);
   const username = localStorage.getItem("username");
-  const inputRef = useRef(1);
+  // const inputRef = useRef(1);
 
   const form = useForm({
     resolver: zodResolver(FormSchema),
@@ -138,7 +137,7 @@ export function ReplyComponent() {
                 <FormItem>
                   <FormControl>
                     <Input
-                      className="h-16 border-none"
+                      className="h-4 border-none focus:h-16"
                       placeholder="Add A Reply"
                       {...field}
                     />

@@ -26,11 +26,7 @@ import { toast } from "sonner";
 
 const RootPostComponent = () => {
   const {
-    selectedPage,
-    userData,
     colorTheme,
-    updateUserData,
-    updateSelectedPage,
     updateOnlineStatus,
     showLoader,
     hideLoader,

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { z } from "zod";
 
 import {
@@ -20,7 +19,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { fetchLoggedInUserDetails } from "../home/home-helper";
 import { authenticate } from "./login-helper";
@@ -54,11 +52,8 @@ export function LoginComponent() {
     loaderMessage,
     showLoader,
     hideLoader,
-    updateSelectedPage,
     updateOnlineStatus,
   } = useGlobalAppContext();
-
-  const navigate = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -90,7 +85,6 @@ export function LoginComponent() {
         toast.success("Logged In");
         form.reset();
         updateOnlineStatus(true);
-        // navigate("/home", { replace: true });
       }
     } catch (e) {
       toast.error("Incorrect Credentials");

@@ -8,23 +8,13 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui";
-import { pages } from "@/constants/pages";
-import { useGlobalAppContext } from "@/context/app-context";
 import { getRelativeDate } from "@/utils/get-relative-date";
 import { ArrowBigUp, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { downvoteAPost, upvoteAPost } from "./post-card-helper";
 
-export function PostCardComponent({
-  post,
-  className,
-  lineClamp,
-  openModal,
-  setOpenModal,
-}) {
-  const { userData, postData, selectedPage, selectedPost, updateSelectedPost } =
-    useGlobalAppContext();
+export function PostCardComponent({ post, className, lineClamp }) {
   const [numOfLikes, setNumOfLikes] = useState(post.numberOfLikes);
   const [fillColor, setFillColor] = useState(
     post.postLikedByCurrentUser ? "orange" : "none",
@@ -102,11 +92,7 @@ export function PostCardComponent({
             </Button>
             <Button
               className="inline-flex h-8 items-center gap-1 border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
-              onClick={() => {
-                if (selectedPage === pages.PAGE_REPLY) {
-                  setOpenModal(!openModal);
-                }
-              }}
+              onClick={(e) => e.preventDefault()}
             >
               <MessageSquareIcon strokeWidth={2} size={18} />
               <p className="text-center">{post.numberOfReplies}</p>

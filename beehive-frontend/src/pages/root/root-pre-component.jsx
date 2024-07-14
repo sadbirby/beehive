@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
 import { useEffect, useState } from "react";

@@ -15,10 +15,7 @@ export function MyProfileComponent() {
   const {
     loaderEnabled,
     loaderMessage,
-    userData,
     updateSelectedPost,
-    updateSelectedPage,
-    updatePostData,
     showLoader,
     hideLoader,
   } = useGlobalAppContext();
