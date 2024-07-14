@@ -104,6 +104,7 @@ public class SecurityConfig {
     return config.getAuthenticationManager();
   }
 
+  // CORS configuration to allow all sources
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
