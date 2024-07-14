@@ -23,7 +23,7 @@ export function HeroComponent() {
         Beehive
       </motion.h1>
       <Separator />
-      <Highlight className="relative mx-auto max-w-lg rounded-full p-2 text-center text-xl font-light text-neutral-500 dark:text-white">
+      <Highlight className="relative mx-auto max-w-lg rounded-md p-2 text-center text-xl font-light text-neutral-500 dark:text-white">
         Connect With The Hive
       </Highlight>
     </div>

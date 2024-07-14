@@ -1,26 +1,24 @@
 /* eslint-disable react/prop-types */
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+  Input,
+} from "@/components/ui";
+import {} from "@/components/ui/input";
 import { useGlobalAppContext } from "@/context/app-context";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { checkIfUserExists, register } from "./register-helper";
@@ -69,8 +67,10 @@ const formSchema = z
   })
   .refine(
     async (data) => {
-      const res = await checkIfUserExists(data.username);
-      return !res;
+      if (data.username != "") {
+        const res = await checkIfUserExists(data.username);
+        return !res;
+      }
     },
     {
       message: "Username already exists!",
@@ -99,9 +99,13 @@ export function RegisterComponent() {
     reValidateMode: "onSubmit",
   });
 
+  useEffect(() => {
+    hideLoader();
+  }, []);
+
   const handleSubmit = async (requestBody) => {
     try {
-      showLoader("Adding new user");
+      showLoader();
       let username = requestBody.username;
       let email = requestBody.email;
       let password = requestBody.password;
@@ -126,10 +130,7 @@ export function RegisterComponent() {
         className="w-full space-y-8"
       >
         <Card>
-          <CardHeader>
-            <CardTitle className="font-light">Create A New Account</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 pt-4">
             <FormField
               control={form.control}
               name="username"
@@ -185,16 +186,13 @@ export function RegisterComponent() {
           </CardContent>
           <CardFooter>
             {loaderEnabled ? (
-              <Button
-                disabled
-                className="w-full rounded-full text-base font-normal"
-              >
+              <Button disabled className="w-full text-base font-normal">
                 <Loader2 className="mr-2 animate-spin" />
                 {loaderMessage}
               </Button>
             ) : (
               <Button
-                className="w-full rounded-full text-base font-normal"
+                className="w-full text-base font-normal"
                 size="lg"
                 type="submit"
               >

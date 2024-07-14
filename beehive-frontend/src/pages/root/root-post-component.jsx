@@ -1,14 +1,14 @@
-/* eslint-disable react/prop-types */
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -16,16 +16,13 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
+} from "@/components/ui";
 import { classnames } from "@/constants/classnames";
-import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
 import { CircleUser, Hexagon, Home, Menu, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { HomeComponent } from "../home/home-component";
 
 const RootPostComponent = () => {
   const {
@@ -34,66 +31,147 @@ const RootPostComponent = () => {
     colorTheme,
     updateUserData,
     updateSelectedPage,
+    updateOnlineStatus,
     showLoader,
     hideLoader,
     updateTheme,
   } = useGlobalAppContext();
-  const [activeComponent, setActiveComponent] = useState(<HomeComponent />);
+  const navigate = useNavigate();
   const currentUser = localStorage.getItem("username");
 
   useEffect(() => {
-    const initialise = async () => {
-      // theme change logic
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      localStorage.setItem("color-theme", colorTheme);
-      root.classList.add(colorTheme);
-
-      // page change logic
-      /* switch (selectedPage) {
-        case pages.PAGE_HOME: {
-          console.log("set home component");
-          setActiveComponent(<HomeComponent />);
-          break;
-        }
-        case pages.PAGE_REPLY: {
-          console.log("set reply component");
-          setActiveComponent(<ReplyComponent />);
-          break;
-        }
-        case pages.PAGE_MY_TWEETS: {
-          console.log("set mytweets component");
-          setActiveComponent(<MyProfileComponent />);
-          break;
-        }
-        case pages.PAGE_CREATE_POST: {
-          console.log("set create post component");
-          setActiveComponent(<CreatePostComponent />);
-          break;
-        }
-        default:
-          setActiveComponent(<HomeComponent />);
-      } */
-    };
-    initialise();
+    console.log("rendered root-post-login-component");
+    // theme change logic
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+    localStorage.setItem("color-theme", colorTheme);
+    root.classList.add(colorTheme);
   }, [colorTheme]);
-
-  const activeTabStyle = (page) => {
-    return page === selectedPage
-      ? {
-          full: classnames.NAV_ACTIVE,
-          collapsed: classnames.NAV_COLLAPSED_ACTIVE,
-        }
-      : { full: classnames.NAV, collapsed: classnames.NAV_COLLAPSED };
-  };
 
   const onLogout = (event) => {
     event.preventDefault();
-    showLoader("Logging out");
+    showLoader();
     localStorage.clear();
-    toast.info("Logged Out");
-    updateSelectedPage(pages.PAGE_LANDING);
+    updateOnlineStatus(false);
+    navigate("/", { replace: true });
     hideLoader();
+    toast.info("Logged Out");
+  };
+
+  const SheetComponent = () => {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-none lg:hidden"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col">
+          <div className="flex-1">
+            <nav className="grid items-start gap-2 p-1">
+              <SheetClose asChild>
+                <SheetHeader>
+                  <SheetTitle>
+                    <div className="flex items-center gap-2 pb-2 text-lg font-extrabold">
+                      <Hexagon className="h-6 w-6" />
+                      <h1 className="text-3xl font-extrabold">Beehive</h1>
+                    </div>
+                  </SheetTitle>
+                  <SheetDescription />
+                </SheetHeader>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink to="/home">
+                  {({ isActive }) => {
+                    return (
+                      <div
+                        className={
+                          isActive
+                            ? classnames.NAV_COLLAPSED_ACTIVE
+                            : classnames.NAV_COLLAPSED
+                        }
+                      >
+                        <Home className="h-5 w-5" />
+                        Home
+                      </div>
+                    );
+                  }}
+                </NavLink>
+              </SheetClose>
+              <SheetClose asChild>
+                <NavLink key={currentUser} to={`/${currentUser}/posts`}>
+                  {({ isActive }) => {
+                    return (
+                      <div
+                        className={
+                          isActive
+                            ? classnames.NAV_COLLAPSED_ACTIVE
+                            : classnames.NAV_COLLAPSED
+                        }
+                      >
+                        <Users className="h-5 w-5" />
+                        Profile
+                      </div>
+                    );
+                  }}
+                </NavLink>
+              </SheetClose>
+            </nav>
+          </div>
+          <div className="mt-auto">
+            <SheetClose asChild>
+              <Link to="/create">
+                <Button size="lg" className="w-full text-base font-normal">
+                  Create Post
+                </Button>
+              </Link>
+            </SheetClose>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  };
+
+  const DropdownComponent = () => {
+    return (
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="primary" className="hover:bg-secondary/[60%]">
+            {currentUser}
+            <CircleUser className="ml-2 h-6 w-6" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem
+                  disabled={colorTheme === "dark"}
+                  onClick={() => updateTheme("dark")}
+                >
+                  Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={colorTheme === "light"}
+                  onClick={() => updateTheme("light")}
+                >
+                  Light
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   return (
@@ -108,13 +186,12 @@ const RootPostComponent = () => {
               </div>
             </div>
             <div className="flex-1">
-              <nav className="grid items-start px-2 py-1">
+              <nav className="grid items-start gap-2 px-2 py-1">
                 <NavLink
                   to="/home"
                   className={({ isActive }) => {
                     return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
                   }}
-                  // onClick={() => updateSelectedPage(pages.PAGE_HOME)}
                 >
                   <Home className="h-4 w-4" />
                   Home
@@ -125,7 +202,6 @@ const RootPostComponent = () => {
                   className={({ isActive }) => {
                     return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
                   }}
-                  // onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
                 >
                   <Users className="h-4 w-4" />
                   Profile
@@ -133,13 +209,11 @@ const RootPostComponent = () => {
               </nav>
             </div>
             <div className="mt-auto p-4">
-              <Button
-                size="lg"
-                className="w-full rounded-full text-base font-normal"
-                onClick={() => updateSelectedPage(pages.PAGE_CREATE_POST)}
-              >
-                Create Post
-              </Button>
+              <Link to="/create">
+                <Button size="lg" className="w-full text-base font-normal">
+                  Create Post
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -148,100 +222,11 @@ const RootPostComponent = () => {
           {/* Header starts */}
           <header className="sticky top-0 z-50 flex h-14 items-center gap-1 border-b bg-background px-4 lg:h-14 lg:px-6">
             {/* Sheet when in mobile viewport */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0 border-none lg:hidden"
-                >
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="flex flex-col">
-                <div className="flex-1">
-                  <nav className="grid items-start gap-2 p-1">
-                    <SheetClose asChild>
-                      <SheetHeader>
-                        <SheetTitle>
-                          <NavLink className="flex items-center gap-2 pb-2 text-lg font-extrabold">
-                            <Hexagon className="h-6 w-6" />
-                            <h1 className="text-3xl font-extrabold">Beehive</h1>
-                          </NavLink>
-                        </SheetTitle>
-                        <SheetDescription />
-                      </SheetHeader>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <NavLink
-                        to="/home"
-                        className={activeTabStyle(pages.PAGE_HOME).collapsed}
-                        // onClick={() => updateSelectedPage(pages.PAGE_HOME)}
-                      >
-                        <Home className="h-5 w-5" />
-                        Home
-                      </NavLink>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <NavLink
-                        className={
-                          activeTabStyle(pages.PAGE_MY_TWEETS).collapsed
-                        }
-                        onClick={() => updateSelectedPage(pages.PAGE_MY_TWEETS)}
-                      >
-                        <Users className="h-5 w-5" />
-                        Profile
-                      </NavLink>
-                    </SheetClose>
-                  </nav>
-                </div>
-                <div className="mt-auto">
-                  <SheetClose asChild>
-                    <Button
-                      size="lg"
-                      className="w-full rounded-full text-base font-normal"
-                      onClick={() => updateSelectedPage(pages.PAGE_CREATE_POST)}
-                    >
-                      Create Post
-                    </Button>
-                  </SheetClose>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <SheetComponent />
             {/* Sheet ends */}
             <div className="w-full flex-1"></div>
             {/* User Menu Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="primary" size="icon">
-                  <CircleUser className="h-6 w-6" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{currentUser}</DropdownMenuLabel>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>
-                  <div className="flex items-center space-x-4">
-                    <Label className="font-normal" htmlFor="dark-mode">
-                      Dark Mode
-                    </Label>
-                    <Switch
-                      id="dark-mode"
-                      checked={colorTheme === "dark" ? true : false}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        colorTheme === "dark"
-                          ? updateTheme("light")
-                          : updateTheme("dark");
-                      }}
-                    />
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DropdownComponent />
           </header>
           {/* Header ends */}
           <div className="flex flex-1 flex-col gap-4 bg-secondary/[15%] p-3 lg:gap-6 lg:p-4">

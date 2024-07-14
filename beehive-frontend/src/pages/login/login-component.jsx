@@ -1,28 +1,26 @@
 /* eslint-disable react/prop-types */
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Card,
   CardContent,
   CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { pages } from "@/constants/pages";
+  Input,
+} from "@/components/ui/";
+import {} from "@/components/ui/input";
 import { useGlobalAppContext } from "@/context/app-context";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { fetchLoggedInUserDetails } from "../home/home-helper";
 import { authenticate } from "./login-helper";
@@ -57,7 +55,10 @@ export function LoginComponent() {
     showLoader,
     hideLoader,
     updateSelectedPage,
+    updateOnlineStatus,
   } = useGlobalAppContext();
+
+  const navigate = useNavigate();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -67,9 +68,13 @@ export function LoginComponent() {
     },
   });
 
+  useEffect(() => {
+    hideLoader();
+  }, []);
+
   const onLoginClick = async (requestBody) => {
     try {
-      showLoader("Logging in");
+      showLoader();
       let username = requestBody.username;
       let password = requestBody.password;
       let token = await authenticate(username, password);
@@ -78,12 +83,14 @@ export function LoginComponent() {
         localStorage.setItem("token", token);
         localStorage.setItem("isAuthenticated", true);
         localStorage.setItem("username", username);
-        let userData = await fetchLoggedInUserDetails(username);
-        localStorage.setItem("userData", JSON.stringify(userData));
+        await fetchLoggedInUserDetails(username).then((res) =>
+          localStorage.setItem("userData", JSON.stringify(res)),
+        );
         // display toast and update page
         toast.success("Logged In");
         form.reset();
-        updateSelectedPage(pages.PAGE_HOME);
+        updateOnlineStatus(true);
+        // navigate("/home", { replace: true });
       }
     } catch (e) {
       toast.error("Incorrect Credentials");
@@ -100,12 +107,7 @@ export function LoginComponent() {
         className="w-full space-y-8"
       >
         <Card>
-          <CardHeader>
-            <CardTitle className="font-light">
-              Pick Up Where You Left Off
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 pt-4">
             <FormField
               control={form.control}
               name="username"
@@ -135,16 +137,13 @@ export function LoginComponent() {
           </CardContent>
           <CardFooter>
             {loaderEnabled ? (
-              <Button
-                disabled
-                className="w-full rounded-full text-base font-normal"
-              >
+              <Button disabled className="w-full text-base font-normal">
                 <Loader2 className="mr-2 animate-spin" />
                 {loaderMessage}
               </Button>
             ) : (
               <Button
-                className="w-full rounded-full text-base font-normal"
+                className="w-full text-base font-normal"
                 size="lg"
                 type="submit"
               >

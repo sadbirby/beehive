@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/v1.0/login")
-@CrossOrigin("*")
 public class AuthenticationController {
 
   private final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);

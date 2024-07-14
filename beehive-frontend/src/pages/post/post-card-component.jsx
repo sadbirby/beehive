@@ -29,12 +29,15 @@ export function PostCardComponent({
   const [fillColor, setFillColor] = useState(
     post.postLikedByCurrentUser ? "orange" : "none",
   );
+  const username = localStorage.getItem("username");
 
   const onLikeButtonPress = async (e) => {
+    e.preventDefault();
     e.stopPropagation();
+    console.log("isPostLikedByCurrentUser?", post.postLikedByCurrentUser);
     try {
       if (!post.postLikedByCurrentUser) {
-        await upvoteAPost(post.postId, userData.username).then((res) => {
+        await upvoteAPost(post.postId, username).then((res) => {
           if (res.statusMessage === "SUCCESS") {
             post.postLikedByCurrentUser = !post.postLikedByCurrentUser;
             setFillColor("orange");
@@ -43,7 +46,7 @@ export function PostCardComponent({
         });
       } else {
         if (numOfLikes > 0) {
-          await downvoteAPost(post.postId, userData.username).then((res) => {
+          await downvoteAPost(post.postId, username).then((res) => {
             if (res.statusMessage === "SUCCESS") {
               post.postLikedByCurrentUser = !post.postLikedByCurrentUser;
               setFillColor("none");
@@ -62,8 +65,8 @@ export function PostCardComponent({
     <Card className={`inline-flex w-full px-0 py-4 ${className}`}>
       <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
         <div>
-          <Avatar className="rounded-none border-2">
-            <AvatarFallback className="rounded-none bg-secondary/[50%] font-mono">
+          <Avatar className="rounded-md border-2">
+            <AvatarFallback className="rounded-md bg-secondary/[50%] font-mono">
               {post.postedBy.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -91,15 +94,14 @@ export function PostCardComponent({
         <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
           <div className="inline-flex gap-6">
             <Button
-              // disabled={setOpenModal === undefined}
               onClick={onLikeButtonPress}
-              className="inline-flex h-8 items-center gap-1 rounded-full border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
+              className="inline-flex h-8 items-center gap-1 border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
             >
               <ArrowBigUp fill={fillColor} strokeWidth={1} />
               <p className="text-center">{numOfLikes}</p>
             </Button>
             <Button
-              className="inline-flex h-8 items-center gap-1 rounded-full border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
+              className="inline-flex h-8 items-center gap-1 border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
               onClick={() => {
                 if (selectedPage === pages.PAGE_REPLY) {
                   setOpenModal(!openModal);

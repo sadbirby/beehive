@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/v1.0/posts")
-@CrossOrigin("*")
 public class PostController {
 
   private final Logger logger = LoggerFactory.getLogger(PostController.class);
@@ -28,7 +27,7 @@ public class PostController {
     this.replyService = replyService;
   }
 
-  @GetMapping(value = "/")
+  @GetMapping(value = "/post")
   public PostResponse getPostById(@RequestParam Long postId, @RequestParam String username) {
     PostResponse response = postService.servicePostGetByPostId(postId, username);
     logger.info("Post Controller in getPostById() call {}", response.getStatusMessage());

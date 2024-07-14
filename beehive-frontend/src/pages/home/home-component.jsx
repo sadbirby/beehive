@@ -27,16 +27,9 @@ export function HomeComponent() {
   const [postResponse, setPostResponse] = useState([]);
   const pageIndexRef = useRef(0);
 
-  useEffect(() => {
-    const initialise = async () => {
-      await getAllPosts(pageIndexRef.current);
-    };
-    initialise();
-  }, []);
-
   const getAllPosts = async (pageNumber) => {
     try {
-      showLoader("Fetching Posts...");
+      showLoader();
       await fetchAllPosts(username, pageNumber)
         .then((res) => {
           setPostResponse(res);
@@ -46,9 +39,18 @@ export function HomeComponent() {
     } catch (e) {
       console.error("Error in home-component", e);
     } finally {
+      console.log("Fetching posts completed");
       hideLoader();
     }
   };
+
+  useEffect(() => {
+    const initialise = async () => {
+      console.log("Fetching posts");
+      await getAllPosts(pageIndexRef.current);
+    };
+    initialise();
+  }, []);
 
   const onPageIndexChange = async (newIndex) => {
     pageIndexRef.current = newIndex;
@@ -61,10 +63,15 @@ export function HomeComponent() {
         key={post.postId}
         onClick={() => {
           updateSelectedPost(post);
+          showLoader();
           // updateSelectedPage(pages.PAGE_REPLY);
         }}
       >
-        <Link key={post.postId} to={`/post/${post.postId}`}>
+        <Link
+          key={post.postId}
+          to={`/${post.postedBy}/post/${post.postId}`}
+          replace={true}
+        >
           <PostCardComponent
             className="cursor-pointer hover:bg-secondary/[25%]"
             lineClamp={"line-clamp-4"}
@@ -78,9 +85,6 @@ export function HomeComponent() {
   return loaderEnabled ? (
     <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
       <LoadingSpinner />
-      <div>
-        <h4 className="font-extralight">{loaderMessage}</h4>
-      </div>
     </div>
   ) : (
     <div className="grid grid-cols-1 gap-2">

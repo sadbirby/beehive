@@ -17,7 +17,7 @@ public interface PostRepository extends JpaRepository<PostEntity, Long> {
 
   @Query(
       "SELECT  p.postId AS postId, p.postTitle AS postTitle, p.postBody AS postBody, p.postedBy AS postedBy, p.postedOn AS postedOn FROM PostEntity p WHERE p.postId = :postId")
-  PostEntity findPostById(@Param("postId") Long postId);
+  PostEntityProjection findPostById(@Param("postId") Long postId);
 
   @Query(
       "SELECT p.postId AS postId, p.postTitle AS postTitle, p.postBody AS postBody, p.postedBy AS postedBy, p.postedOn AS postedOn FROM PostEntity p")

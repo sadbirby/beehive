@@ -1,72 +1,177 @@
-/* eslint-disable react/prop-types */
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
+  Avatar,
+  AvatarFallback,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-} from "@/components/ui/card";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Separator } from "@/components/ui/separator";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+  Input,
+  LoadingSpinner,
+  Separator,
+} from "@/components/ui";
 import { useGlobalAppContext } from "@/context/app-context";
 import { getRelativeDate } from "@/utils/get-relative-date";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  Loader2,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { z } from "zod";
 import { PostCardComponent } from "../post/post-card-component";
-import { fetchAllReplies } from "./reply-helper";
-import { ReplyModalComponent } from "./reply-modal-component";
+import { fetchPostById } from "../post/post-card-helper";
+import { fetchAllReplies, replyToPost } from "./reply-helper";
+
+const FormSchema = z.object({
+  replyBody: z.string().min(1, {
+    message: "Reply cannot be empty!",
+  }),
+});
 
 export function ReplyComponent() {
-  const { loaderEnabled, loaderMessage, selectedPost, showLoader, hideLoader } =
+  const { loaderEnabled, selectedPost, loaderMessage, showLoader, hideLoader } =
     useGlobalAppContext();
-  const [openModal, setOpenModal] = useState(false);
+  const { postId } = useParams();
+  const [currentPost, setCurrentPost] = useState({});
   const [replyResponse, setReplyResponse] = useState({});
+  const [replyList, setReplyList] = useState([]);
   const pageIndexRef = useRef(0);
+  const username = localStorage.getItem("username");
   const inputRef = useRef(1);
 
-  const { postId } = useParams();
-  console.info("Post ID: ", postId);
+  const form = useForm({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      replyBody: "",
+    },
+  });
 
-  useEffect(() => {
-    const initialise = async () => {
-      await getAllReplies(pageIndexRef.current);
+  const getPostById = useMemo(() => {
+    return async () => {
+      try {
+        await fetchPostById(postId, username).then((res) => {
+          setCurrentPost(res);
+        });
+      } catch (e) {
+        console.error("Error in reply-component getPostById()");
+      }
     };
-    initialise();
-  }, []);
+  }, [postId]);
 
   const getAllReplies = async (pageNumber) => {
     try {
-      showLoader("Fetching Replies...");
-      await fetchAllReplies(selectedPost.postId, pageNumber).then((res) =>
-        setReplyResponse(res),
-      );
+      await fetchAllReplies(postId, pageNumber)
+        .then((res) => {
+          setReplyResponse(res);
+          return res.content;
+        })
+        .then((res) => setReplyList(res));
     } catch (e) {
-      console.error("Error in reply-component");
+      console.error("Error in reply-component getAllReplies()");
+    } finally {
+      hideLoader();
+    }
+  };
+
+  useEffect(() => {
+    const initialise = async () => {
+      try {
+        await getPostById();
+        await getAllReplies(pageIndexRef.current);
+      } catch (error) {
+        console.error("Failed to initialise ReplyComponent");
+      } finally {
+        hideLoader();
+      }
+    };
+    initialise();
+  }, [postId]);
+
+  const onSubmit = async (data) => {
+    try {
+      showLoader();
+      await replyToPost(postId, data.replyBody, username).then((res) => {
+        if (res.statusMessage === "SUCCESS") {
+          toast.success("Reply Added");
+          form.reset();
+          onPageIndexChange(0);
+        }
+      });
+    } catch (e) {
+      toast.error("Cannot Reply To Post");
+      console.error("Error in reply-area-component", e);
     } finally {
       hideLoader();
     }
   };
 
   const onPageIndexChange = async (newIndex) => {
+    showLoader();
     pageIndexRef.current = newIndex;
     await getAllReplies(newIndex);
   };
 
-  const listItems = replyResponse.content?.map((reply, index, { length }) => {
+  const ReplyFormComponent = () => {
+    return (
+      <div className="rounded-md border bg-background shadow-sm">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-2 p-4"
+          >
+            <FormField
+              control={form.control}
+              name="replyBody"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      className="h-16 border-none"
+                      placeholder="Add A Reply"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex flex-row-reverse">
+              {loaderEnabled ? (
+                <Button disabled className="w-1/6">
+                  <Loader2 className="mr-2 animate-spin" />
+                </Button>
+              ) : (
+                <Button className="w-1/6" type="submit">
+                  Reply
+                </Button>
+              )}
+            </div>
+          </form>
+        </Form>
+      </div>
+    );
+  };
+
+  const listItems = replyList.map((reply, index, { length }) => {
     return (
       <div key={reply.replyId}>
         <Card className="inline-flex w-full border-none px-0 py-4 shadow-none">
           <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
             <div>
-              <Avatar className="rounded-none border-2">
-                <AvatarFallback className="rounded-none bg-secondary/[50%] font-mono">
+              <Avatar className="rounded-md border-2">
+                <AvatarFallback className="rounded-md bg-secondary/[50%] font-mono">
                   {reply.repliedBy.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -98,27 +203,15 @@ export function ReplyComponent() {
   return loaderEnabled ? (
     <div className="mt-8 flex w-full flex-grow flex-col items-center justify-center gap-4">
       <LoadingSpinner />
-      <div>
-        <h4>{loaderMessage}</h4>
-      </div>
     </div>
   ) : (
     <div className="grid grid-cols-1 gap-2">
       <div className="grid grid-cols-1 gap-3">
-        <PostCardComponent
-          post={selectedPost}
-          openModal={openModal}
-          setOpenModal={setOpenModal}
-        />
-        <ReplyModalComponent
-          open={openModal}
-          onOpenChange={setOpenModal}
-          postId={selectedPost.postId}
-          onPageIndexChange={onPageIndexChange}
-        />
+        <PostCardComponent post={currentPost.posts?.[0]} />
+        <ReplyFormComponent />
         {replyResponse.totalElements > 0 ? (
           <>
-            <div className="grid grid-cols-1 gap-0 rounded-2xl border bg-background p-0 shadow">
+            <div className="grid grid-cols-1 gap-0 rounded-md border bg-background p-0 shadow">
               {listItems}
             </div>
             <div className="flex-row items-center justify-between gap-2 px-0 py-4">

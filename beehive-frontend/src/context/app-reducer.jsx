@@ -2,18 +2,22 @@ import { globalActionTypes } from "./action-types";
 
 export const reducer = (state, action) => {
   switch (action.type) {
+    case globalActionTypes.UPDATE_ONLINE_STATUS: {
+      return {
+        ...state,
+        isOnline: action.payload,
+      };
+    }
     case globalActionTypes.SHOW_LOADER: {
       return {
         ...state,
         loaderEnabled: true,
-        loaderMessage: action.payload,
       };
     }
     case globalActionTypes.HIDE_LOADER: {
       return {
         ...state,
         loaderEnabled: false,
-        loaderMessage: "",
       };
     }
     case globalActionTypes.UPDATE_SELECTED_PAGE: {

@@ -97,7 +97,7 @@ export function CreatePostComponent() {
               </FormItem>
             )}
           />
-          <Button className="rounded-full" size="lg" type="submit">
+          <Button size="lg" type="submit">
             Post
           </Button>
         </form>

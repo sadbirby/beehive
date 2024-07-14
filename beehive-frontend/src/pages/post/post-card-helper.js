@@ -2,14 +2,14 @@ import { POST_BASE } from "@/constants/endpoints";
 import { HttpGet, HttpPost } from "@/utils/api-service";
 
 export const fetchPostById = async (postId, username) => {
-  let apiUrl = `${POST_BASE}`;
+  let apiUrl = `${POST_BASE}/post`;
   let response = {};
   let parameters = {
     postId: postId,
     username: username,
   };
   try {
-    response = HttpGet(apiUrl, parameters, {});
+    response = await HttpGet(apiUrl, parameters, {});
   } catch (error) {
     console.error(error);
   }

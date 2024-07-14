@@ -24,7 +24,7 @@ export function ErrorComponent() {
       <Link to="/">
         <Button
           onClick={onBackBtnClick}
-          className="w-full rounded-full text-base font-normal"
+          className="w-full text-base font-normal"
         >
           Go Back
         </Button>

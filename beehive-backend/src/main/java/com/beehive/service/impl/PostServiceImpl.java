@@ -46,7 +46,7 @@ public class PostServiceImpl implements PostService {
     PostResponse response = new PostResponse();
     List<PostDto> postDtoList = new ArrayList<>();
     try {
-      PostEntity entity = postRepository.findPostById(postId);
+      PostEntityProjection entity = postRepository.findPostById(postId);
       PostDto postDto = new PostDto();
       Long numberOfReplies = replyService.serviceReplyGetCountByPostId(entity.getPostId());
       Long numberOfLikes = postLikeService.servicePostLikeGetCountByPostId(entity.getPostId());
@@ -63,8 +63,9 @@ public class PostServiceImpl implements PostService {
 
       postDtoList.add(postDto);
       response.setPosts(postDtoList);
+      response.setStatusMessage("SUCCESS");
     } catch (Exception e) {
-      logger.error("in servicePostAdd: ", e);
+      logger.error("in servicePostGetPostById: ", e);
       response.setStatusMessage("FAILURE");
     }
     return response;

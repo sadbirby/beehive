@@ -8,8 +8,8 @@ const initialState = {
   selectedPage: localStorage.getItem("isAuthenticated")
     ? pages.PAGE_HOME
     : pages.PAGE_LANDING,
-  loaderEnabled: false,
-  loaderMessage: "",
+  isOnline: localStorage.getItem("isAuthenticated") || false,
+  loaderEnabled: true,
   userData: {},
   postData: [],
   selectedPost: {},
@@ -21,10 +21,9 @@ const AppContext = createContext();
 const AppProvider = ({ children, ...props }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const showLoader = (loaderMessage) => {
+  const showLoader = () => {
     return dispatch({
       type: globalActionTypes.SHOW_LOADER,
-      payload: loaderMessage,
     });
   };
 
@@ -69,6 +68,13 @@ const AppProvider = ({ children, ...props }) => {
     });
   };
 
+  const updateOnlineStatus = (isOnline) => {
+    return dispatch({
+      type: globalActionTypes.UPDATE_ONLINE_STATUS,
+      payload: isOnline,
+    });
+  };
+
   return (
     <AppContext.Provider
       {...props}
@@ -81,6 +87,7 @@ const AppProvider = ({ children, ...props }) => {
         updateUserData,
         updatePostData,
         updateTheme,
+        updateOnlineStatus,
       }}
     >
       {children}

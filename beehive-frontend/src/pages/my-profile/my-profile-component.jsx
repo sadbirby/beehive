@@ -1,5 +1,4 @@
 import { Button, LoadingSpinner } from "@/components/ui/";
-import { pages } from "@/constants/pages";
 import { useGlobalAppContext } from "@/context/app-context";
 import {
   ChevronLeftIcon,
@@ -8,6 +7,7 @@ import {
   ChevronsRightIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { PostCardComponent } from "../post/post-card-component";
 import { fetchAllPostsByUser } from "./my-profile-helper";
 
@@ -16,6 +16,7 @@ export function MyProfileComponent() {
     loaderEnabled,
     loaderMessage,
     userData,
+    updateSelectedPost,
     updateSelectedPage,
     updatePostData,
     showLoader,
@@ -23,7 +24,21 @@ export function MyProfileComponent() {
   } = useGlobalAppContext();
 
   const [postResponse, setPostResponse] = useState([]);
+  const username = localStorage.getItem("username");
   const pageIndexRef = useRef(0);
+
+  const getAllPosts = async (pageNumber) => {
+    try {
+      showLoader();
+      await fetchAllPostsByUser(username, pageNumber).then((res) =>
+        setPostResponse(res),
+      );
+    } catch (e) {
+      console.error("Error in my-profile-component", e);
+    } finally {
+      hideLoader();
+    }
+  };
 
   useEffect(() => {
     const initialise = async () => {
@@ -31,17 +46,6 @@ export function MyProfileComponent() {
     };
     initialise();
   }, []);
-
-  const getAllPosts = async (pageNumber) => {
-    try {
-      showLoader("Fetching Posts...");
-      setPostResponse(await fetchAllPostsByUser(userData.username, pageNumber));
-    } catch (e) {
-      console.error("Error in my-profile-component", e);
-    } finally {
-      hideLoader();
-    }
-  };
 
   const onPageIndexChange = async (newIndex) => {
     pageIndexRef.current = newIndex;
@@ -53,15 +57,22 @@ export function MyProfileComponent() {
       <div
         key={post.postId}
         onClick={() => {
-          updatePostData(post);
-          updateSelectedPage(pages.PAGE_REPLY);
+          updateSelectedPost(post);
+          showLoader();
+          // updateSelectedPage(pages.PAGE_REPLY);
         }}
       >
-        <PostCardComponent
-          className="cursor-pointer hover:bg-secondary/[25%]"
-          lineClamp={"line-clamp-4"}
-          post={post}
-        />
+        <Link
+          key={post.postId}
+          to={`/${post.postedBy}/post/${post.postId}`}
+          replace={true}
+        >
+          <PostCardComponent
+            className="cursor-pointer hover:bg-secondary/[25%]"
+            lineClamp={"line-clamp-4"}
+            post={post}
+          />
+        </Link>
       </div>
     );
   });
