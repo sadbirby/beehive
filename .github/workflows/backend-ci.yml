@@ -17,6 +17,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'beehive-backend/**'
+  workflow_dispatch:
 
 jobs:
   build:
