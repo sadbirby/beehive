@@ -3,15 +3,16 @@ package com.beehive.entity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "users")
 public class UserEntity {
 
-  @Id private String username;
-  @NotNull private String email;
-  @NotNull private String password;
+  @Id @NotBlank private String username;
+  @NotBlank @Email private String email;
+  @NotBlank private String password;
 
   public UserEntity() {}
 

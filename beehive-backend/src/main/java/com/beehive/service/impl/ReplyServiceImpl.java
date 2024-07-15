@@ -1,11 +1,8 @@
 package com.beehive.service.impl;
 
-import com.beehive.dto.ReplyDto;
 import com.beehive.entity.ReplyEntity;
 import com.beehive.repository.ReplyRepository;
 import com.beehive.service.ReplyService;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -32,7 +29,6 @@ public class ReplyServiceImpl implements ReplyService {
             ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending())
             : PageRequest.of(pageNumber, pageSize, Sort.by(sortBy));
     Page<ReplyEntity> replyEntityList = null;
-    List<ReplyDto> replyDtoList = new ArrayList<>();
     try {
       replyEntityList = replyRepository.findByPost_PostId(postId, pageable);
     } catch (Exception e) {

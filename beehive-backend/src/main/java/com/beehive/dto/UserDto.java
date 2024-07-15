@@ -1,21 +1,25 @@
 package com.beehive.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public class UserDto {
 
+  @NotBlank
   @Pattern(
       regexp = "^[a-zA-Z0-9]{4,32}$",
       message = "username must be 4 to 32 characters long, containing no special characters")
   private String username;
 
+  @NotBlank
   @Email(
       regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+.[aag-z]{2,3}",
       flags = Pattern.Flag.CASE_INSENSITIVE,
       message = "invalid email format")
   private String email;
 
+  @NotBlank
   @Pattern(
       regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,32}$",
       message =

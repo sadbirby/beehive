@@ -1,13 +1,9 @@
 package com.beehive.response;
 
 import com.beehive.dto.UserDto;
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.List;
 
-public class UserResponse implements Serializable {
-
-  @Serial private static final long serialVersionUID = 5432683200958075030L;
+public class UserResponse {
 
   private List<UserDto> users;
   private String statusMessage;

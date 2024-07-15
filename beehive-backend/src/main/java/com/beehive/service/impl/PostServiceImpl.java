@@ -10,7 +10,6 @@ import com.beehive.request.PostRequest;
 import com.beehive.request.ReplyRequest;
 import com.beehive.response.PostResponse;
 import com.beehive.response.ReplyResponse;
-import com.beehive.security.UserPrincipal;
 import com.beehive.service.PostLikeService;
 import com.beehive.service.PostService;
 import com.beehive.service.ReplyService;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -75,8 +73,9 @@ public class PostServiceImpl implements PostService {
   public Page<PostDto> servicePostGetAll(
       String username, Integer pageNumber, Integer pageSize, String sortBy, Boolean isDescending) {
 
-    UserPrincipal userPrincipal =
-        (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    //    UserPrincipal userPrincipal = (UserPrincipal)
+    // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
     Pageable pageable =
         isDescending
             ? PageRequest.of(pageNumber, pageSize, Sort.by(sortBy).descending())
