@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.beehive.dto.UserDto;
 import com.beehive.entity.UserEntity;
 import com.beehive.repository.UserRepository;
+import com.beehive.request.UserRequest;
 import com.beehive.response.UserResponse;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ class UserServiceImplTest {
   @InjectMocks UserServiceImpl userService;
 
   private List<UserEntity> userEntityList;
+  private UserRequest userRequest = new UserRequest();
 
   @BeforeEach
   void setUp() {
@@ -37,6 +39,8 @@ class UserServiceImplTest {
     user2.setPassword("password2");
 
     userEntityList = Arrays.asList(user1, user2);
+    userRequest.setUser(
+        new UserDto(user1.getUsername(), user1.getEmail(), user1.getPassword(), false));
   }
 
   @Test
@@ -93,7 +97,48 @@ class UserServiceImplTest {
   }
 
   @Test
-  void serviceUserRegister() {}
+  void serviceUserRegisterSuccess() {
+    UserEntity userEntity = new UserEntity("user1", "user1@example.com", "password1");
+    UserEntity savedUserEntity = new UserEntity("user1", "user1@example.com", "password1");
+    when(userRepository.existsById(anyString())).thenReturn(false);
+    when(userRepository.save(any(UserEntity.class))).thenReturn(savedUserEntity);
+    UserResponse response = userService.serviceUserRegister(userRequest);
+
+    assertNotNull(response);
+    assertTrue(response.getUsers().isEmpty());
+    assertEquals("SUCCESS", response.getStatusMessage());
+
+    verify(userRepository, times(1)).existsById(userEntity.getUsername());
+    verify(userRepository, times(1)).save(any(UserEntity.class));
+  }
+
+  @Test
+  void serviceUserRegisterUserAlreadyExists() {
+    when(userRepository.existsById("user1")).thenReturn(true);
+    UserResponse response = userService.serviceUserRegister(userRequest);
+
+    assertNotNull(response);
+    assertTrue(response.getUsers().isEmpty());
+    assertEquals("User Already Exists", response.getStatusMessage());
+
+    verify(userRepository, times(1)).existsById("user1");
+    verify(userRepository, never()).save(any(UserEntity.class));
+  }
+
+  @Test
+  void serviceUserRegisterFailure() {
+    when(userRepository.existsById(anyString())).thenReturn(false);
+    when(userRepository.save(any(UserEntity.class)))
+        .thenThrow(new RuntimeException("Cannot Add User"));
+    UserResponse response = userService.serviceUserRegister(userRequest);
+
+    assertNotNull(response);
+    assertTrue(response.getUsers().isEmpty());
+    assertEquals("FAILURE", response.getStatusMessage());
+
+    verify(userRepository, times(1)).existsById(anyString());
+    verify(userRepository, times(1)).save(any(UserEntity.class));
+  }
 
   @Test
   void serviceUserForgotPassword() {}
