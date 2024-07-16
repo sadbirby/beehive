@@ -1,13 +1,6 @@
 export { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 export { Button, buttonVariants } from "./button";
-export {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./card";
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card";
 export {
   Dialog,
   DialogClose,
@@ -37,17 +30,7 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-export {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  useFormField,
-} from "./form";
-export { HeroHighlight, Highlight } from "./HeroHighlight";
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField } from "./form";
 export { Input } from "./input";
 export { Label } from "./label";
 export { LoadingSpinner } from "./loading-spinner";

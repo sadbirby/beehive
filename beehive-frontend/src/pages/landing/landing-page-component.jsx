@@ -3,7 +3,7 @@ import { HeroComponent } from "./hero-component";
 
 export function LandingPageComponent() {
   return (
-    <div className="w-full lg:grid lg:min-h-dvh lg:grid-cols-2 lg:place-items-stretch xl:min-h-dvh">
+    <div className="h-screen w-full lg:grid lg:grid-cols-2 lg:place-items-stretch">
       <div className="m-auto hidden justify-center lg:flex">
         <HeroComponent />
       </div>

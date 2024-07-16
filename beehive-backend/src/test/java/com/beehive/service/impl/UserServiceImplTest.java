@@ -20,11 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
+  private final UserRequest userRequest = new UserRequest();
   @Mock UserRepository userRepository;
   @InjectMocks UserServiceImpl userService;
-
   private List<UserEntity> userEntityList;
-  private UserRequest userRequest = new UserRequest();
 
   @BeforeEach
   void setUp() {

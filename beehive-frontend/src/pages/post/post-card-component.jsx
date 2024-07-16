@@ -16,9 +16,7 @@ import { downvoteAPost, upvoteAPost } from "./post-card-helper";
 
 export function PostCardComponent({ post, className, lineClamp }) {
   const [numOfLikes, setNumOfLikes] = useState(post.numberOfLikes);
-  const [fillColor, setFillColor] = useState(
-    post.postLikedByCurrentUser ? "orange" : "none",
-  );
+  const [fillColor, setFillColor] = useState(post.postLikedByCurrentUser ? "yellow" : "none");
   const username = localStorage.getItem("username");
 
   const onLikeButtonPress = async (e) => {
@@ -30,7 +28,7 @@ export function PostCardComponent({ post, className, lineClamp }) {
         await upvoteAPost(post.postId, username).then((res) => {
           if (res.statusMessage === "SUCCESS") {
             post.postLikedByCurrentUser = !post.postLikedByCurrentUser;
-            setFillColor("orange");
+            setFillColor("yellow");
             setNumOfLikes(numOfLikes + 1);
           }
         });
@@ -69,9 +67,7 @@ export function PostCardComponent({ post, className, lineClamp }) {
               <p className="text-foreground/[65%]">{post.postedBy}</p>
             </div>
             <div className="place-self-end">
-              <CardDescription className="text-right">
-                {getRelativeDate(post.postedOn)}
-              </CardDescription>
+              <CardDescription className="text-right">{getRelativeDate(post.postedOn)}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -83,17 +79,11 @@ export function PostCardComponent({ post, className, lineClamp }) {
         </CardContent>
         <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
           <div className="inline-flex gap-6">
-            <Button
-              onClick={onLikeButtonPress}
-              className="inline-flex h-8 items-center gap-1 border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
-            >
+            <Button onClick={onLikeButtonPress} className="inline-flex h-8 items-center gap-1 border pl-2 pr-4">
               <ArrowBigUp fill={fillColor} strokeWidth={1} />
               <p className="text-center">{numOfLikes}</p>
             </Button>
-            <Button
-              className="inline-flex h-8 items-center gap-1 border bg-primary/[40%] pl-2 pr-4 hover:bg-primary/[60%]"
-              onClick={(e) => e.preventDefault()}
-            >
+            <Button className="inline-flex h-8 items-center gap-1 border pl-2 pr-4" onClick={(e) => e.preventDefault()}>
               <MessageSquareIcon strokeWidth={2} size={18} />
               <p className="text-center">{post.numberOfReplies}</p>
             </Button>
