@@ -12,4 +12,8 @@ public interface PostEntityProjection {
   String getPostedBy();
 
   Date getPostedOn();
+
+  Long getNumberOfLikes();
+
+  Long getNumberOfReplies();
 }

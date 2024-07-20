@@ -3,11 +3,11 @@ import { HeroComponent } from "./hero-component";
 
 export function LandingPageComponent() {
   return (
-    <div className="h-screen w-full lg:grid lg:grid-cols-2 lg:place-items-stretch">
-      <div className="m-auto hidden justify-center lg:flex">
+    <div className="h-screen w-full flex justify-center">
+      <div className="flex-initial w-[50%] m-auto hidden lg:block">
         <HeroComponent />
       </div>
-      <div className="flex items-center justify-center py-12">
+      <div className="relative flex-initial w-[50%] flex items-center justify-center">
         <EntryTabComponent />
       </div>
     </div>

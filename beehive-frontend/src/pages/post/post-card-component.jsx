@@ -9,14 +9,18 @@ import {
   CardHeader,
 } from "@/components/ui";
 import { getRelativeDate } from "@/utils/get-relative-date";
-import { ArrowBigUp, MessageSquareIcon } from "lucide-react";
+import { Heart, MessageSquareIcon } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { downvoteAPost, upvoteAPost } from "./post-card-helper";
 
 export function PostCardComponent({ post, className, lineClamp }) {
+  const navigate = useNavigate();
   const [numOfLikes, setNumOfLikes] = useState(post.numberOfLikes);
-  const [fillColor, setFillColor] = useState(post.postLikedByCurrentUser ? "yellow" : "none");
+  const [fillColor, setFillColor] = useState(
+    post.postLikedByCurrentUser ? "crimson" : "none",
+  );
   const username = localStorage.getItem("username");
 
   const onLikeButtonPress = async (e) => {
@@ -28,7 +32,7 @@ export function PostCardComponent({ post, className, lineClamp }) {
         await upvoteAPost(post.postId, username).then((res) => {
           if (res.statusMessage === "SUCCESS") {
             post.postLikedByCurrentUser = !post.postLikedByCurrentUser;
-            setFillColor("yellow");
+            setFillColor("crimson");
             setNumOfLikes(numOfLikes + 1);
           }
         });
@@ -67,7 +71,9 @@ export function PostCardComponent({ post, className, lineClamp }) {
               <p className="text-foreground/[65%]">{post.postedBy}</p>
             </div>
             <div className="place-self-end">
-              <CardDescription className="text-right">{getRelativeDate(post.postedOn)}</CardDescription>
+              <CardDescription className="text-right">
+                {getRelativeDate(post.postedOn)}
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -79,12 +85,30 @@ export function PostCardComponent({ post, className, lineClamp }) {
         </CardContent>
         <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
           <div className="inline-flex gap-6">
-            <Button onClick={onLikeButtonPress} className="inline-flex h-8 items-center gap-1 border pl-2 pr-4">
-              <ArrowBigUp fill={fillColor} strokeWidth={1} />
+            <Button
+              variant="secondary"
+              onClick={onLikeButtonPress}
+              className="inline-flex h-8 items-center gap-2 border pl-2 pr-3"
+            >
+              <Heart
+                size={20}
+                color={fillColor !== "none" ? fillColor : "currentColor"}
+                fill={fillColor}
+                strokeWidth={3}
+              />
               <p className="text-center">{numOfLikes}</p>
             </Button>
-            <Button className="inline-flex h-8 items-center gap-1 border pl-2 pr-4" onClick={(e) => e.preventDefault()}>
-              <MessageSquareIcon strokeWidth={2} size={18} />
+            <Button
+              variant="secondary"
+              className="inline-flex h-8 items-center gap-2 border pl-2 pr-3"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/${post.postedBy}/post/${post.postId}`, {
+                  replace: true,
+                });
+              }}
+            >
+              <MessageSquareIcon strokeWidth={3} size={20} />
               <p className="text-center">{post.numberOfReplies}</p>
             </Button>
           </div>

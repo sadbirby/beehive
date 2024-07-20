@@ -2,18 +2,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Textarea } from "@/components/ui/textarea";
+  Input,
+  LoadingSpinner,
+  Textarea,
+} from "@/components/ui";
 import { useGlobalAppContext } from "@/context/app-context";
 import { toast } from "sonner";
 import { createPost } from "./create-post-helper";
@@ -29,7 +29,7 @@ const formSchema = z
   })
   .required();
 
-export function CreatePostComponent() {
+const CreatePostComponent = () => {
   const { loaderEnabled, loaderMessage, showLoader, hideLoader } =
     useGlobalAppContext();
 
@@ -106,4 +106,6 @@ export function CreatePostComponent() {
       </Form>
     </div>
   );
-}
+};
+
+export default CreatePostComponent;

@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   Form,
   FormControl,
@@ -23,6 +24,7 @@ import {
   ChevronRightIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
+  Heart,
   Loader2,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -32,7 +34,12 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { PostCardComponent } from "../post/post-card-component";
 import { fetchPostById } from "../post/post-card-helper";
-import { fetchAllReplies, replyToPost } from "./reply-helper";
+import {
+  downvoteAReply,
+  fetchAllReplies,
+  replyToPost,
+  upvoteAReply,
+} from "./reply-helper";
 
 const FormSchema = z.object({
   replyBody: z.string().min(1, {
@@ -40,7 +47,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function ReplyComponent() {
+const ReplyComponent = () => {
   const { loaderEnabled, showLoader, hideLoader } = useGlobalAppContext();
   const { postId } = useParams();
   const [currentPost, setCurrentPost] = useState({});
@@ -71,7 +78,7 @@ export function ReplyComponent() {
 
   const getAllReplies = async (pageNumber) => {
     try {
-      await fetchAllReplies(postId, pageNumber)
+      await fetchAllReplies(postId, pageNumber, username)
         .then((res) => {
           setReplyResponse(res);
           return res.content;
@@ -166,35 +173,8 @@ export function ReplyComponent() {
   const listItems = replyList.map((reply, index, { length }) => {
     return (
       <div key={reply.replyId}>
-        <Card className="inline-flex w-full border-none px-0 py-4 shadow-none">
-          <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
-            <div>
-              <Avatar className="rounded-md border-2">
-                <AvatarFallback className="rounded-md bg-secondary/[50%] font-mono">
-                  {reply.repliedBy.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-          <div className="w-full flex-initial">
-            <CardHeader className="py-0 pl-4 pr-10">
-              <div className="grid grid-cols-2 gap-0">
-                <div>
-                  <p className="text-foreground/[65%]">{reply.repliedBy}</p>
-                </div>
-                <div className="place-self-end">
-                  <CardDescription className="text-right text-xs">
-                    {getRelativeDate(reply.repliedOn)}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="py-1 pl-4 pr-10">
-              <p>{reply.replyBody}</p>
-            </CardContent>
-          </div>
-        </Card>
-        <Separator className="" hidden={index + 1 === length} />
+        <ReplyCardComponent reply={reply} />
+        <Separator hidden={index + 1 === length} />
       </div>
     );
   });
@@ -295,4 +275,92 @@ export function ReplyComponent() {
       </div>
     </div>
   );
-}
+};
+
+const ReplyCardComponent = ({ reply }) => {
+  const [numOfLikes, setNumOfLikes] = useState(reply.numberOfLikes);
+  const [fillColor, setFillColor] = useState(
+    reply.replyLikedByCurrentUser ? "crimson" : "none",
+  );
+  const username = localStorage.getItem("username");
+
+  const onLikeButtonPress = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("isPostLikedByCurrentUser?", reply.replyLikedByCurrentUser);
+    try {
+      if (!reply.replyLikedByCurrentUser) {
+        await upvoteAReply(reply.replyId, username).then((res) => {
+          if (res.statusMessage === "SUCCESS") {
+            reply.replyLikedByCurrentUser = !reply.replyLikedByCurrentUser;
+            setFillColor("crimson");
+            setNumOfLikes(numOfLikes + 1);
+          }
+        });
+      } else {
+        if (numOfLikes > 0) {
+          await downvoteAReply(reply.replyId, username).then((res) => {
+            if (res.statusMessage === "SUCCESS") {
+              reply.replyLikedByCurrentUser = !reply.replyLikedByCurrentUser;
+              setFillColor("none");
+              setNumOfLikes(numOfLikes - 1);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      toast.error("An Error Occured");
+      console.error("Error in post-card-component", e);
+    }
+  };
+
+  return (
+    <Card className="inline-flex w-full border-none px-0 py-4 shadow-none">
+      <div className="grid grid-rows-2 place-items-start gap-0 py-0 pl-4 pr-0">
+        <div>
+          <Avatar className="rounded-md border-2">
+            <AvatarFallback className="rounded-md bg-secondary/[50%] font-mono">
+              {reply.repliedBy.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
+      <div className="w-full flex-initial">
+        <CardHeader className="py-0 pl-4 pr-10">
+          <div className="grid grid-cols-2 gap-0">
+            <div>
+              <p className="text-foreground/[65%]">{reply.repliedBy}</p>
+            </div>
+            <div className="place-self-end">
+              <CardDescription className="text-right text-xs">
+                {getRelativeDate(reply.repliedOn)}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="py-1 pl-4 pr-10">
+          <p>{reply.replyBody}</p>
+        </CardContent>
+        <CardFooter className="grid grid-cols-2 px-4 pb-0 pt-2">
+          <div className="inline-flex gap-6">
+            <Button
+              variant="secondary"
+              onClick={onLikeButtonPress}
+              className="inline-flex h-8 items-center gap-2 border pl-2 pr-3"
+            >
+              <Heart
+                size={20}
+                color={fillColor !== "none" ? fillColor : "currentColor"}
+                fill={fillColor}
+                strokeWidth={3}
+              />
+              <p className="text-center">{numOfLikes}</p>
+            </Button>
+          </div>
+        </CardFooter>
+      </div>
+    </Card>
+  );
+};
+
+export default ReplyComponent;

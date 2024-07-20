@@ -7,6 +7,7 @@ import com.beehive.repository.UserRepository;
 import com.beehive.request.UserRequest;
 import com.beehive.response.UserResponse;
 import com.beehive.service.UserService;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional
   public UserResponse serviceUserRegister(UserRequest userRequest) {
 
     UserResponse userResponse = new UserResponse(new ArrayList<>(), "");

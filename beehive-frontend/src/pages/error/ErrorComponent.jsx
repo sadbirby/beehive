@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { Button } from "./components/ui/button";
-import { pages } from "./constants/pages";
-import { useGlobalAppContext } from "./context/app-context";
+import { Button } from "../../components/ui/button";
+import { pages } from "../../constants/pages";
+import { useGlobalAppContext } from "../../context/app-context";
 
-export function ErrorComponent() {
+const ErrorComponent = () => {
   const { updateSelectedPage } = useGlobalAppContext();
 
   const onBackBtnClick = () => {
@@ -31,4 +31,6 @@ export function ErrorComponent() {
       </Link>
     </div>
   );
-}
+};
+
+export default ErrorComponent;

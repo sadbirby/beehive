@@ -1,6 +1,6 @@
 package com.beehive.entity;
 
-import com.beehive.composite.PostLikeId;
+import com.beehive.entity.composite.PostLikeId;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,7 +15,6 @@ import jakarta.persistence.Table;
 @Table(name = "post_likes")
 public class PostLikeEntity {
   @Id private Long postId;
-
   @Id private String postLikedBy;
 
   @ManyToOne(fetch = FetchType.LAZY)

@@ -1,4 +1,12 @@
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +28,7 @@ import {
 import { classnames } from "@/constants/classnames";
 import { useGlobalAppContext } from "@/context/app-context";
 import { CircleUser, Hexagon, Home, Menu, Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -34,6 +42,7 @@ const RootPostComponent = () => {
   } = useGlobalAppContext();
   const navigate = useNavigate();
   const currentUser = localStorage.getItem("username");
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     console.log("rendered root-post-login-component");
@@ -46,6 +55,7 @@ const RootPostComponent = () => {
 
   const onLogout = (event) => {
     event.preventDefault();
+    setIsOpen(false);
     showLoader();
     localStorage.clear();
     updateOnlineStatus(false);
@@ -69,7 +79,7 @@ const RootPostComponent = () => {
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col">
           <div className="flex-1">
-            <nav className="grid items-start gap-2 p-1">
+            <nav className="grid items-start gap-1 p-4">
               <SheetClose asChild>
                 <SheetHeader>
                   <SheetTitle>
@@ -122,7 +132,11 @@ const RootPostComponent = () => {
           <div className="mt-auto">
             <SheetClose asChild>
               <Link to="/create">
-                <Button size="lg" className="w-full text-base font-normal">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full text-base font-normal"
+                >
                   Create Post
                 </Button>
               </Link>
@@ -135,38 +149,57 @@ const RootPostComponent = () => {
 
   const DropdownComponent = () => {
     return (
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="primary" className="hover:bg-secondary/[60%]">
-            {currentUser}
-            <CircleUser className="ml-2 h-6 w-6" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem
-                  disabled={colorTheme === "dark"}
-                  onClick={() => updateTheme("dark")}
-                >
-                  Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  disabled={colorTheme === "light"}
-                  onClick={() => updateTheme("light")}
-                >
-                  Light
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onLogout}>Logout</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="primary" className="hover:bg-secondary/[60%]">
+              {currentUser}
+              <CircleUser className="ml-2 h-6 w-6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem
+                    disabled={colorTheme === "dark"}
+                    onClick={() => updateTheme("dark")}
+                  >
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={colorTheme === "light"}
+                    onClick={() => updateTheme("light")}
+                  >
+                    Light
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onSelect={() => setIsOpen(true)}>
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Logout</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you absolutely sure? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onLogout}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   };
 
@@ -182,7 +215,7 @@ const RootPostComponent = () => {
               </div>
             </div>
             <div className="flex-1">
-              <nav className="grid items-start gap-2 px-2 py-1">
+              <nav className="grid items-start gap-1 p-4">
                 <NavLink
                   to="/home"
                   className={({ isActive }) => {
@@ -206,7 +239,11 @@ const RootPostComponent = () => {
             </div>
             <div className="mt-auto p-4">
               <Link to="/create">
-                <Button size="lg" className="w-full text-base font-normal">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="w-full text-base font-normal"
+                >
                   Create Post
                 </Button>
               </Link>
@@ -225,7 +262,7 @@ const RootPostComponent = () => {
             <DropdownComponent />
           </header>
           {/* Header ends */}
-          <div className="flex flex-1 flex-col gap-4 bg-secondary/[15%] p-3 lg:gap-6 lg:p-4">
+          <div className="flex flex-1 flex-col bg-secondary/[15%] p-3 lg:gap-6 lg:p-4">
             {/* {activeComponent} */}
             <Outlet />
           </div>

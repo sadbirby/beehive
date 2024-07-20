@@ -12,10 +12,20 @@ export const fetchLoggedInUserDetails = async (username) => {
   return await HttpGet(apiUrl, {}, {});
 };
 
-export const fetchAllPosts = async (username, pageNumber = 0) => {
-  let apiUrl = POST_BASE + `/${username}` + ALL_POSTS;
+export const fetchAllPosts = async (
+  username,
+  pageNumber,
+  pageSize,
+  sortBy,
+  isDescending,
+) => {
+  let apiUrl = `${POST_BASE}${ALL_POSTS}`;
   let parameters = {
+    username: username,
     pageNumber: pageNumber,
+    pageSize: pageSize,
+    sortBy: sortBy,
+    isDescending: isDescending,
   };
   let response = {};
   try {

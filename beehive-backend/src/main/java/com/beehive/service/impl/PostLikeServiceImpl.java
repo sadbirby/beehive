@@ -1,6 +1,5 @@
 package com.beehive.service.impl;
 
-import com.beehive.entity.PostLikeEntity;
 import com.beehive.repository.PostLikeRepository;
 import com.beehive.service.PostLikeService;
 import org.slf4j.Logger;
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class PostLikeServiceImpl implements PostLikeService {
 
   private final PostLikeRepository postLikeRepository;
-  Logger logger = LoggerFactory.getLogger(PostLikeServiceImpl.class);
+  private final Logger logger = LoggerFactory.getLogger(PostLikeServiceImpl.class);
 
   public PostLikeServiceImpl(PostLikeRepository postLikeRepository) {
     this.postLikeRepository = postLikeRepository;
@@ -36,7 +35,6 @@ public class PostLikeServiceImpl implements PostLikeService {
     } catch (Exception e) {
       logger.error("in servicePostLikeCheckIfUserExists: ", e);
     }
-
     return hasUserLikedPost;
   }
 
@@ -44,12 +42,10 @@ public class PostLikeServiceImpl implements PostLikeService {
   public Boolean servicePostLikeAddUpvote(Long postId, String username) {
     boolean response = false;
     if (!postLikeRepository.existsByPostIdAndPostLikedBy(postId, username)) {
-      PostLikeEntity postLikeEntity = new PostLikeEntity();
-      postLikeEntity.setPostId(postId);
-      postLikeEntity.setPostLikedBy(username);
+      logger.info("{}: {}", postId, username);
       try {
-        postLikeRepository.save(postLikeEntity);
-        response = true;
+        int count = postLikeRepository.saveEntity(postId, username);
+        response = count > 0;
       } catch (Exception e) {
         logger.error("in servicePostLikeAddUpvote ", e);
       }
@@ -58,13 +54,12 @@ public class PostLikeServiceImpl implements PostLikeService {
   }
 
   @Override
-  public Boolean servicePostRevertUpvote(Long postId, String username) {
+  public Boolean servicePostLikeRevertUpvote(Long postId, String username) {
     boolean response = false;
     try {
       if (postLikeRepository.existsByPostIdAndPostLikedBy(postId, username)) {
-        System.out.println("here!");
-        postLikeRepository.deleteByPostIdAndPostLikedBy(postId, username);
-        response = true;
+        int count = postLikeRepository.deleteByPostIdAndPostLikedBy(postId, username);
+        response = count > 0;
       }
     } catch (Exception e) {
       logger.error("in servicePostLikeAddUpvote ", e);

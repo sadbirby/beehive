@@ -1,26 +1,50 @@
-import PropTypes from "prop-types";
+import { Suspense, lazy } from "react";
 import {
   Navigate,
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
+import { LoadingSpinner } from "./components/ui";
 import { useGlobalAppContext } from "./context/app-context";
-import { ErrorComponent } from "./ErrorComponent";
-import { HomeComponent } from "./pages/home/home-component";
-import { MyProfileComponent } from "./pages/my-profile/my-profile-component";
-import { CreatePostComponent } from "./pages/post/create-post-component";
-import { ReplyComponent } from "./pages/reply/reply-component";
-import RootPostComponent from "./pages/root/root-post-component";
-import RootPreComponent from "./pages/root/root-pre-component";
 
-export function App() {
+// Lazy imports
+const ErrorComponent = lazy(() => import("./pages/error/ErrorComponent"));
+const HomeComponent = lazy(() => import("./pages/home/home-component"));
+const MyProfileComponent = lazy(
+  () => import("./pages/my-profile/my-profile-component"),
+);
+const CreatePostComponent = lazy(
+  () => import("./pages/post/create-post-component"),
+);
+const ReplyComponent = lazy(() => import("./pages/reply/reply-component"));
+const RootPostComponent = lazy(
+  () => import("./pages/root/root-post-component"),
+);
+const RootPreComponent = lazy(() => import("./pages/root/root-pre-component"));
+
+const App = () => {
   const { isOnline } = useGlobalAppContext();
+
+  // Loading component
+  const Loading = () => (
+    <div className="flex flex-row min-h-screen justify-center items-center">
+      <LoadingSpinner />
+    </div>
+  );
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: isOnline ? <RootPostComponent /> : <RootPreComponent />,
-      errorElement: <ErrorComponent />,
+      element: (
+        <Suspense fallback={<Loading />}>
+          {isOnline ? <RootPostComponent /> : <RootPreComponent />}
+        </Suspense>
+      ),
+      errorElement: (
+        <Suspense fallback={<Loading />}>
+          <ErrorComponent />
+        </Suspense>
+      ),
       children: isOnline
         ? [
             {
@@ -29,19 +53,35 @@ export function App() {
             },
             {
               path: "/home",
-              element: <HomeComponent />,
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <HomeComponent />
+                </Suspense>
+              ),
             },
             {
               path: "/:user/post/:postId",
-              element: <ReplyComponent />,
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <ReplyComponent />
+                </Suspense>
+              ),
             },
             {
               path: "/:user/posts",
-              element: <MyProfileComponent />,
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <MyProfileComponent />
+                </Suspense>
+              ),
             },
             {
               path: "/create",
-              element: <CreatePostComponent />,
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <CreatePostComponent />
+                </Suspense>
+              ),
             },
           ]
         : [],
@@ -49,9 +89,6 @@ export function App() {
   ]);
 
   return <RouterProvider router={router} />;
-}
-
-App.propTypes = {
-  props: PropTypes.object,
-  global: PropTypes.object,
 };
+
+export default App;

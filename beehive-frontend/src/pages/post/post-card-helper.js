@@ -2,7 +2,7 @@ import { POST_BASE } from "@/constants/endpoints";
 import { HttpGet, HttpPost } from "@/utils/api-service";
 
 export const fetchPostById = async (postId, username) => {
-  let apiUrl = `${POST_BASE}/post`;
+  let apiUrl = `${POST_BASE}`;
   let response = {};
   let parameters = {
     postId: postId,
@@ -17,7 +17,7 @@ export const fetchPostById = async (postId, username) => {
 };
 
 export const upvoteAPost = async (postId, username) => {
-  let apiUrl = `${POST_BASE}/${username}/${postId}/like`;
+  let apiUrl = `${POST_BASE}/${postId}/like?username=${username}`;
   let response = {};
   try {
     response = await HttpPost(apiUrl, {}, {});
@@ -28,7 +28,7 @@ export const upvoteAPost = async (postId, username) => {
 };
 
 export const downvoteAPost = async (postId, username) => {
-  let apiUrl = `${POST_BASE}/${username}/${postId}/unlike`;
+  let apiUrl = `${POST_BASE}/${postId}/unlike?username=${username}`;
   let response = {};
   try {
     response = await HttpPost(apiUrl, {}, {});

@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { PostCardComponent } from "../post/post-card-component";
 import { fetchAllPostsByUser } from "./my-profile-helper";
 
-export function MyProfileComponent() {
+const MyProfileComponent = () => {
   const {
     loaderEnabled,
     loaderMessage,
@@ -147,4 +147,6 @@ export function MyProfileComponent() {
       </div>
     </div>
   );
-}
+};
+
+export default MyProfileComponent;

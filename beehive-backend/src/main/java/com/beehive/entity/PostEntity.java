@@ -1,22 +1,14 @@
 package com.beehive.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "posts", indexes = @Index(name = "index_posted_by", columnList = "postedBy"))
 public class PostEntity {
 
   @Id
@@ -31,17 +23,23 @@ public class PostEntity {
 
   @NotNull private String postedBy;
   @NotNull private Date postedOn;
-  private Long numberOfLikes;
-  private Long numberOfReplies;
+  @NotNull private Long numberOfLikes;
+  @NotNull private Long numberOfReplies;
 
   @OneToMany(
       mappedBy = "post",
       cascade = CascadeType.ALL,
-      fetch = FetchType.LAZY,
-      orphanRemoval = true)
+      fetch = FetchType.LAZY
+      //          , orphanRemoval = true
+      )
   private Set<PostLikeEntity> postLikedBy = new HashSet<>();
 
-  @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(
+      mappedBy = "post",
+      cascade = CascadeType.ALL,
+      fetch = FetchType.LAZY
+      //          , orphanRemoval = true
+      )
   private Set<ReplyEntity> postReplies = new HashSet<>();
 
   public PostEntity() {}

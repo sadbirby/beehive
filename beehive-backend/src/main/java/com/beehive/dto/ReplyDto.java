@@ -2,6 +2,7 @@ package com.beehive.dto;
 
 import jakarta.persistence.Embeddable;
 import java.util.Date;
+import java.util.Set;
 
 @Embeddable
 public class ReplyDto {
@@ -11,15 +12,29 @@ public class ReplyDto {
   private String replyBody;
   private String repliedBy;
   private Date repliedOn;
+  private Long numberOfLikes;
+  private Boolean isReplyLikedByCurrentUser;
+  private Set<String> replyLikedBy;
 
   public ReplyDto() {}
 
-  public ReplyDto(Long replyId, Long postId, String replyBody, String repliedBy, Date repliedOn) {
-    this.replyId = replyId;
+  public ReplyDto(
+      Boolean isReplyLikedByCurrentUser,
+      Long numberOfLikes,
+      Long postId,
+      String repliedBy,
+      Date repliedOn,
+      String replyBody,
+      Long replyId,
+      Set<String> replyLikedBy) {
+    this.isReplyLikedByCurrentUser = isReplyLikedByCurrentUser;
+    this.numberOfLikes = numberOfLikes;
     this.postId = postId;
-    this.replyBody = replyBody;
     this.repliedBy = repliedBy;
     this.repliedOn = repliedOn;
+    this.replyBody = replyBody;
+    this.replyId = replyId;
+    this.replyLikedBy = replyLikedBy;
   }
 
   public Long getReplyId() {
@@ -60,5 +75,29 @@ public class ReplyDto {
 
   public void setRepliedOn(Date repliedOn) {
     this.repliedOn = repliedOn;
+  }
+
+  public Boolean getReplyLikedByCurrentUser() {
+    return isReplyLikedByCurrentUser;
+  }
+
+  public void setReplyLikedByCurrentUser(Boolean replyLikedByCurrentUser) {
+    isReplyLikedByCurrentUser = replyLikedByCurrentUser;
+  }
+
+  public Long getNumberOfLikes() {
+    return numberOfLikes;
+  }
+
+  public void setNumberOfLikes(Long numberOfLikes) {
+    this.numberOfLikes = numberOfLikes;
+  }
+
+  public Set<String> getReplyLikedBy() {
+    return replyLikedBy;
+  }
+
+  public void setReplyLikedBy(Set<String> replyLikedBy) {
+    this.replyLikedBy = replyLikedBy;
   }
 }

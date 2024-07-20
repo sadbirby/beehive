@@ -1,19 +1,14 @@
 package com.beehive.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "replies")
+@Table(name = "replies", indexes = @Index(name = "index_post_id", columnList = "postId"))
 public class ReplyEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -28,16 +23,31 @@ public class ReplyEntity {
 
   private String repliedBy;
   private Date repliedOn;
+  private Long numberOfLikes;
+
+  @OneToMany(
+      mappedBy = "reply",
+      cascade = CascadeType.ALL,
+      fetch = FetchType.LAZY
+      //          , orphanRemoval = true
+      )
+  private Set<ReplyLikeEntity> replyLikedBy = new HashSet<>();
 
   public ReplyEntity() {}
 
   public ReplyEntity(
-      Date repliedOn, String repliedBy, String replyBody, PostEntity post, Long replyId) {
-    this.repliedOn = repliedOn;
-    this.repliedBy = repliedBy;
-    this.replyBody = replyBody;
-    this.post = post;
+      Long replyId,
+      PostEntity post,
+      String replyBody,
+      String repliedBy,
+      Date repliedOn,
+      Set<ReplyLikeEntity> replyLikedBy) {
     this.replyId = replyId;
+    this.post = post;
+    this.replyBody = replyBody;
+    this.repliedBy = repliedBy;
+    this.repliedOn = repliedOn;
+    this.replyLikedBy = replyLikedBy;
   }
 
   public Long getReplyId() {
@@ -79,5 +89,22 @@ public class ReplyEntity {
 
   public void setRepliedOn(Date repliedOn) {
     this.repliedOn = repliedOn;
+  }
+
+  public Long getNumberOfLikes() {
+    return numberOfLikes;
+  }
+
+  public void setNumberOfLikes(Long numberOfLikes) {
+    this.numberOfLikes = numberOfLikes;
+  }
+
+  @JsonManagedReference
+  public Set<ReplyLikeEntity> getReplyLikedBy() {
+    return replyLikedBy;
+  }
+
+  public void setReplyLikedBy(Set<ReplyLikeEntity> replyLikedBy) {
+    this.replyLikedBy = replyLikedBy;
   }
 }

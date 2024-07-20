@@ -13,10 +13,8 @@ import com.beehive.response.ReplyResponse;
 import com.beehive.service.PostLikeService;
 import com.beehive.service.PostService;
 import com.beehive.service.ReplyService;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +25,6 @@ import org.springframework.stereotype.Service;
 public class PostServiceImpl implements PostService {
 
   private final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
-
   private final PostLikeService postLikeService;
   private final PostRepository postRepository;
   private final ReplyService replyService;
@@ -39,29 +36,42 @@ public class PostServiceImpl implements PostService {
     this.replyService = replyService;
   }
 
+  private PostEntity getPost(PostEntityProjection postEntityProjection) {
+    PostEntity postEntity = new PostEntity();
+    postEntity.setPostId(postEntityProjection.getPostId());
+    postEntity.setPostTitle(postEntityProjection.getPostTitle());
+    postEntity.setPostBody(postEntityProjection.getPostedBy());
+    postEntity.setPostedBy(postEntityProjection.getPostedBy());
+    postEntity.setPostedOn(postEntityProjection.getPostedOn());
+    postEntity.setNumberOfLikes(postEntityProjection.getNumberOfLikes());
+    postEntity.setNumberOfReplies(
+        replyService.serviceReplyGetCountByPostId(postEntityProjection.getPostId()));
+    return postEntity;
+  }
+
   @Override
   public PostResponse servicePostGetByPostId(Long postId, String username) {
     PostResponse response = new PostResponse();
     List<PostDto> postDtoList = new ArrayList<>();
     try {
-      PostEntityProjection entity = postRepository.findPostById(postId);
-      PostDto postDto = new PostDto();
-      Long numberOfReplies = replyService.serviceReplyGetCountByPostId(entity.getPostId());
-      Long numberOfLikes = postLikeService.servicePostLikeGetCountByPostId(entity.getPostId());
-      Boolean isPostLikedByCurrentUser =
-          postLikeService.servicePostLikeCheckIfUserExists(entity.getPostId(), username);
-      postDto.setPostId(entity.getPostId());
-      postDto.setPostTitle(entity.getPostTitle());
-      postDto.setPostBody(entity.getPostBody());
-      postDto.setPostedBy(entity.getPostedBy());
-      postDto.setPostedOn(entity.getPostedOn());
-      postDto.setNumberOfLikes(numberOfLikes);
-      postDto.setNumberOfReplies(numberOfReplies);
-      postDto.setPostLikedByCurrentUser(isPostLikedByCurrentUser);
+      Optional<PostEntityProjection> entity = postRepository.findPostByPostId(postId);
+      if (entity.isPresent()) {
+        PostDto postDto = new PostDto();
+        Boolean isPostLikedByCurrentUser =
+            postLikeService.servicePostLikeCheckIfUserExists(entity.get().getPostId(), username);
+        postDto.setPostId(entity.get().getPostId());
+        postDto.setPostTitle(entity.get().getPostTitle());
+        postDto.setPostBody(entity.get().getPostBody());
+        postDto.setPostedBy(entity.get().getPostedBy());
+        postDto.setPostedOn(entity.get().getPostedOn());
+        postDto.setNumberOfLikes(entity.get().getNumberOfLikes());
+        postDto.setNumberOfReplies(entity.get().getNumberOfReplies());
+        postDto.setPostLikedByCurrentUser(isPostLikedByCurrentUser);
 
-      postDtoList.add(postDto);
-      response.setPosts(postDtoList);
-      response.setStatusMessage("SUCCESS");
+        postDtoList.add(postDto);
+        response.setPosts(postDtoList);
+        response.setStatusMessage("SUCCESS");
+      }
     } catch (Exception e) {
       logger.error("in servicePostGetPostById: ", e);
       response.setStatusMessage("FAILURE");
@@ -84,15 +94,11 @@ public class PostServiceImpl implements PostService {
     try {
       Page<PostEntityProjection> pagedResponse = postRepository.findAllPosts(pageable);
       response =
-          new PageImpl<PostDto>(
+          new PageImpl<>(
               pagedResponse.getContent().stream()
                   .map(
                       entity -> {
                         PostDto postDto = new PostDto();
-                        Long numberOfReplies =
-                            replyService.serviceReplyGetCountByPostId(entity.getPostId());
-                        Long numberOfLikes =
-                            postLikeService.servicePostLikeGetCountByPostId(entity.getPostId());
                         Boolean isPostLikedByCurrentUser =
                             postLikeService.servicePostLikeCheckIfUserExists(
                                 entity.getPostId(), username);
@@ -101,8 +107,8 @@ public class PostServiceImpl implements PostService {
                         postDto.setPostBody(entity.getPostBody());
                         postDto.setPostedBy(entity.getPostedBy());
                         postDto.setPostedOn(entity.getPostedOn());
-                        postDto.setNumberOfLikes(numberOfLikes);
-                        postDto.setNumberOfReplies(numberOfReplies);
+                        postDto.setNumberOfLikes(entity.getNumberOfLikes());
+                        postDto.setNumberOfReplies(entity.getNumberOfReplies());
                         postDto.setPostLikedByCurrentUser(isPostLikedByCurrentUser);
 
                         return postDto;
@@ -137,10 +143,6 @@ public class PostServiceImpl implements PostService {
                   .map(
                       entity -> {
                         PostDto postDto = new PostDto();
-                        Long numberOfReplies =
-                            replyService.serviceReplyGetCountByPostId(entity.getPostId());
-                        Long numberOfLikes =
-                            postLikeService.servicePostLikeGetCountByPostId(entity.getPostId());
                         Boolean isPostLikedByCurrentUser =
                             postLikeService.servicePostLikeCheckIfUserExists(
                                 entity.getPostId(), username);
@@ -149,8 +151,8 @@ public class PostServiceImpl implements PostService {
                         postDto.setPostBody(entity.getPostBody());
                         postDto.setPostedBy(entity.getPostedBy());
                         postDto.setPostedOn(entity.getPostedOn());
-                        postDto.setNumberOfLikes(numberOfLikes);
-                        postDto.setNumberOfReplies(numberOfReplies);
+                        postDto.setNumberOfLikes(entity.getNumberOfLikes());
+                        postDto.setNumberOfReplies(entity.getNumberOfReplies());
                         postDto.setPostLikedByCurrentUser(isPostLikedByCurrentUser);
 
                         return postDto;
@@ -167,7 +169,23 @@ public class PostServiceImpl implements PostService {
     return response;
   }
 
+  /* @Override
+  public PostResponse servicePostDelete(String userName, String postId) {
+
+      PostResponse response = new PostResponse();
+      try {
+          postRepository.deleteById(postId);
+          response.setStatusMessage("SUCCESS");
+      } catch (
+              Exception e) {
+          logger.error("in servicePostDelete: ", e);
+          response.setStatusMessage("FAILURE");
+      }
+      return response;
+  } */
+
   @Override
+  @Transactional
   public PostResponse servicePostAdd(PostRequest request, String username) {
 
     PostResponse response = new PostResponse();
@@ -189,21 +207,6 @@ public class PostServiceImpl implements PostService {
     return response;
   }
 
-  /* @Override
-  public PostResponse servicePostDelete(String userName, String postId) {
-
-      PostResponse response = new PostResponse();
-      try {
-          postRepository.deleteById(postId);
-          response.setStatusMessage("SUCCESS");
-      } catch (
-              Exception e) {
-          logger.error("in servicePostDelete: ", e);
-          response.setStatusMessage("FAILURE");
-      }
-      return response;
-  } */
-
   @Override
   public ReplyResponse servicePostAddReply(ReplyRequest request) {
 
@@ -211,14 +214,22 @@ public class PostServiceImpl implements PostService {
     ReplyDto replyDto = request.getReply();
     ReplyEntity replyEntity = new ReplyEntity();
     try {
-      Optional<PostEntity> postEntity = postRepository.findById(replyDto.getPostId());
-      if (postEntity.isPresent()) {
-        replyEntity.setPost(postEntity.get());
+      Optional<PostEntityProjection> postEntityProjection =
+          postRepository.findPostByPostId(replyDto.getPostId());
+      if (postEntityProjection.isPresent()) {
+        PostEntity postEntity = getPost(postEntityProjection.get());
+        logger.info("NUMBER OF LIKES: {}", postEntity.getNumberOfLikes());
+        replyEntity.setPost(postEntity);
         replyEntity.setReplyBody(replyDto.getReplyBody());
         replyEntity.setRepliedBy(replyDto.getRepliedBy());
         replyEntity.setRepliedOn(new Date());
-        boolean result = replyService.serviceReplyAdd(replyEntity);
-        if (result) response.setStatusMessage("SUCCESS");
+        replyEntity.setNumberOfLikes(0L);
+        ReplyResponse result = replyService.serviceReplyAdd(replyEntity);
+        if (result.getStatusMessage().equals("SUCCESS")) {
+          response.setStatusMessage("SUCCESS");
+          Long numberOfReplies = replyService.serviceReplyGetCountByPostId(replyDto.getPostId());
+          postRepository.updateNumberOfRepliesByPostId(replyDto.getPostId(), numberOfReplies);
+        }
       } else {
         throw new NullPointerException();
       }
@@ -231,15 +242,19 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public PostResponse servicePostUpvote(Long postId, String username) {
-
     PostResponse response = new PostResponse();
     try {
-      if (postRepository.existsById(postId)) {
+      Optional<PostEntityProjection> postEntityProjection = postRepository.findPostByPostId(postId);
+      if (postEntityProjection.isPresent()) {
         Boolean result = postLikeService.servicePostLikeAddUpvote(postId, username);
-        if (result) response.setStatusMessage("SUCCESS");
+        if (result) {
+          Long newNumberOfLikes = postLikeService.servicePostLikeGetCountByPostId(postId);
+          postRepository.updateNumberOfLikesByPostId(postId, newNumberOfLikes);
+          response.setStatusMessage("SUCCESS");
+        }
       }
     } catch (Exception e) {
-      logger.error("in servicePostLike: ", e);
+      logger.error("in servicePostUpvote: ", e);
       response.setStatusMessage("FAILURE");
     }
     return response;
@@ -247,15 +262,19 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public PostResponse servicePostRevertUpvote(Long postId, String username) {
-
     PostResponse response = new PostResponse();
     try {
-      if (postRepository.existsById(postId)) {
-        Boolean result = postLikeService.servicePostRevertUpvote(postId, username);
-        if (result) response.setStatusMessage("SUCCESS");
+      Optional<PostEntityProjection> postEntityProjection = postRepository.findPostByPostId(postId);
+      if (postEntityProjection.isPresent()) {
+        Boolean result = postLikeService.servicePostLikeRevertUpvote(postId, username);
+        if (result) {
+          Long newNumberOfLikes = postLikeService.servicePostLikeGetCountByPostId(postId);
+          postRepository.updateNumberOfLikesByPostId(postId, newNumberOfLikes);
+          response.setStatusMessage("SUCCESS");
+        }
       }
     } catch (Exception e) {
-      logger.error("in servicePostLike: ", e);
+      logger.error("in servicePostRevertUpvote: ", e);
       response.setStatusMessage("FAILURE");
     }
     return response;

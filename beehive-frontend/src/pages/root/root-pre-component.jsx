@@ -6,7 +6,9 @@ import { LandingPageComponent } from "../landing/landing-page-component";
 
 const RootPreComponent = () => {
   const { selectedPage } = useGlobalAppContext();
-  const [activeComponent, setActiveComponent] = useState(<LandingPageComponent />);
+  const [activeComponent, setActiveComponent] = useState(
+    <LandingPageComponent />,
+  );
 
   useEffect(() => {
     switch (selectedPage) {
