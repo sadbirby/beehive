@@ -2,10 +2,8 @@ import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   LoadingSpinner,
   Separator,
@@ -120,12 +118,12 @@ const HomeComponent = () => {
           replace={true}
         >
           <PostCardComponent
-            className="border-none shadow-none cursor-pointer hover:bg-secondary/[25%]"
+            className="cursor-pointer border-none shadow-none hover:bg-secondary/[25%]"
             lineClamp={"line-clamp-4"}
             post={post}
           />
         </Link>
-        <Separator hidden={index + 1 === length} className="my-px" />
+        <Separator hidden={index + 1 === length} className="my-1" />
       </div>
     );
   });
@@ -200,9 +198,9 @@ const HomeComponent = () => {
       <LoadingSpinner />
     </div>
   ) : (
-    <div className="self-center w-full max-w-5xl border rounded-md bg-background grid grid-cols-1">
+    <div className="grid w-full max-w-5xl grid-cols-1 self-center rounded-md border bg-card shadow-sm">
       {/* <Card className="px-0 py-4"></Card> */}
-      <div className="justify-self-end p-2">
+      <div className="justify-self-start p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="inline-flex gap-2">
@@ -211,8 +209,6 @@ const HomeComponent = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-            <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
               value={sortingKey}
               onValueChange={setSortingKey}
@@ -230,6 +226,7 @@ const HomeComponent = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <Separator className="mb-1" />
       <div className="grid grid-cols-1">{listItems}</div>
       <PaginationComponent />
     </div>

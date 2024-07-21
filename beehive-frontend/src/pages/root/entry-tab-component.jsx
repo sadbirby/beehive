@@ -5,7 +5,7 @@ import { RegisterComponent } from "../register/register-component";
 
 export function EntryTabComponent() {
   return (
-    <div className="lg:absolute top-[5%] right-[5%] lg:w-[70%] w-full">
+    <div className="right-[5%] top-[5%] w-full lg:absolute lg:w-[70%]">
       <Tabs defaultValue="login" className="h-auto w-full">
         <TabsList className="grid w-full grid-cols-2 rounded-md bg-secondary/[60%]">
           <TabsTrigger className={classnames.LANDING} value="login">

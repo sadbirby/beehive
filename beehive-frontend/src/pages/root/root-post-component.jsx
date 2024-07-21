@@ -27,7 +27,7 @@ import {
 } from "@/components/ui";
 import { classnames } from "@/constants/classnames";
 import { useGlobalAppContext } from "@/context/app-context";
-import { CircleUser, Hexagon, Home, Menu, Users } from "lucide-react";
+import { CircleUser, Home, Menu, PlusSquare, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -71,77 +71,61 @@ const RootPostComponent = () => {
           <Button
             variant="outline"
             size="icon"
-            className="shrink-0 border-none lg:hidden"
+            className="shrink-0 border-none md:hidden"
           >
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col">
-          <div className="flex-1">
-            <nav className="grid items-start gap-1 p-4">
-              <SheetClose asChild>
-                <SheetHeader>
-                  <SheetTitle>
-                    <div className="flex items-center gap-2 pb-2 text-lg font-extrabold">
-                      <Hexagon className="h-6 w-6" />
-                      <h1 className="text-3xl font-extrabold">Beehive</h1>
-                    </div>
-                  </SheetTitle>
-                  <SheetDescription />
-                </SheetHeader>
-              </SheetClose>
-              <SheetClose asChild>
-                <NavLink to="/home">
-                  {({ isActive }) => {
-                    return (
-                      <div
-                        className={
-                          isActive
-                            ? classnames.NAV_COLLAPSED_ACTIVE
-                            : classnames.NAV_COLLAPSED
-                        }
-                      >
-                        <Home className="h-5 w-5" />
-                        Home
-                      </div>
-                    );
-                  }}
-                </NavLink>
-              </SheetClose>
-              <SheetClose asChild>
-                <NavLink key={currentUser} to={`/${currentUser}/posts`}>
-                  {({ isActive }) => {
-                    return (
-                      <div
-                        className={
-                          isActive
-                            ? classnames.NAV_COLLAPSED_ACTIVE
-                            : classnames.NAV_COLLAPSED
-                        }
-                      >
-                        <Users className="h-5 w-5" />
-                        Profile
-                      </div>
-                    );
-                  }}
-                </NavLink>
-              </SheetClose>
-            </nav>
-          </div>
-          <div className="mt-auto">
+        <SheetContent side="left" className="flex w-60 flex-col">
+          <nav className="grid items-start gap-1 p-4">
             <SheetClose asChild>
-              <Link to="/create">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  className="w-full text-base font-normal"
-                >
-                  Create Post
-                </Button>
-              </Link>
+              <SheetHeader>
+                <SheetTitle>
+                  <div className="pb-2 text-left text-lg font-extrabold">
+                    <h1 className="text-3xl font-extrabold">Beehive</h1>
+                  </div>
+                </SheetTitle>
+                <SheetDescription />
+              </SheetHeader>
             </SheetClose>
-          </div>
+            <SheetClose asChild>
+              <NavLink to="/home">
+                {({ isActive }) => {
+                  return (
+                    <div
+                      className={
+                        isActive
+                          ? classnames.NAV_COLLAPSED_ACTIVE
+                          : classnames.NAV_COLLAPSED
+                      }
+                    >
+                      <Home className="h-5 w-5" />
+                      Home
+                    </div>
+                  );
+                }}
+              </NavLink>
+            </SheetClose>
+            <SheetClose asChild>
+              <NavLink key={currentUser} to={`/${currentUser}/posts`}>
+                {({ isActive }) => {
+                  return (
+                    <div
+                      className={
+                        isActive
+                          ? classnames.NAV_COLLAPSED_ACTIVE
+                          : classnames.NAV_COLLAPSED
+                      }
+                    >
+                      <Users className="h-5 w-5" />
+                      Profile
+                    </div>
+                  );
+                }}
+              </NavLink>
+            </SheetClose>
+          </nav>
         </SheetContent>
       </Sheet>
     );
@@ -204,71 +188,51 @@ const RootPostComponent = () => {
   };
 
   return (
-    <>
-      <div className="grid min-h-screen w-full lg:grid-cols-[240px_1fr]">
-        <div className="hidden bg-background lg:block">
-          <div className="sticky left-0 top-0 flex h-full max-h-screen flex-col gap-2 border-r">
-            <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
-              <div className="flex items-center gap-2">
-                <Hexagon className="h-6 w-6" />
-                <h1 className="text-3xl font-extrabold">Beehive</h1>
-              </div>
-            </div>
-            <div className="flex-1">
-              <nav className="grid items-start gap-1 p-4">
-                <NavLink
-                  to="/home"
-                  className={({ isActive }) => {
-                    return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
-                  }}
-                >
-                  <Home className="h-4 w-4" />
-                  Home
-                </NavLink>
-                <NavLink
-                  key={currentUser}
-                  to={`/${currentUser}/posts`}
-                  className={({ isActive }) => {
-                    return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
-                  }}
-                >
-                  <Users className="h-4 w-4" />
-                  Profile
-                </NavLink>
-              </nav>
-            </div>
-            <div className="mt-auto p-4">
-              <Link to="/create">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="w-full text-base font-normal"
-                >
-                  Create Post
-                </Button>
-              </Link>
-            </div>
-          </div>
+    <div className="relative flex flex-col">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between gap-1 border-b bg-background px-4">
+        <div className="hidden items-center gap-2 md:block">
+          <h1 className="text-3xl font-extrabold">Beehive</h1>
         </div>
-
-        <div className="flex flex-col">
-          {/* Header starts */}
-          <header className="sticky top-0 z-50 flex h-14 items-center gap-1 border-b bg-background px-4 lg:h-14 lg:px-6">
-            {/* Sheet when in mobile viewport */}
-            <SheetComponent />
-            {/* Sheet ends */}
-            <div className="w-full flex-1"></div>
-            {/* User Menu Dropdown */}
-            <DropdownComponent />
-          </header>
-          {/* Header ends */}
-          <div className="flex flex-1 flex-col bg-secondary/[15%] p-3 lg:gap-6 lg:p-4">
-            {/* {activeComponent} */}
-            <Outlet />
+        <SheetComponent />
+        <div className="flex">
+          <div className="">
+            <Link to="/create">
+              <Button variant="ghost" className="gap-x-2 font-normal">
+                Create
+                <PlusSquare />
+              </Button>
+            </Link>
           </div>
+          <DropdownComponent />
+        </div>
+      </header>
+      <div className="min-w-screen relative top-14 flex flex-1">
+        <nav className="fixed left-0 hidden min-h-svh w-40 space-y-1 border-r p-4 md:block">
+          <NavLink
+            to="/home"
+            className={({ isActive }) => {
+              return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+            }}
+          >
+            <Home className="h-4 w-4" />
+            Home
+          </NavLink>
+          <NavLink
+            key={currentUser}
+            to={`/${currentUser}/posts`}
+            className={({ isActive }) => {
+              return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+            }}
+          >
+            <Users className="h-4 w-4" />
+            Profile
+          </NavLink>
+        </nav>
+        <div className="flex min-w-fit flex-1 flex-col p-4 md:ml-40 md:gap-6">
+          <Outlet />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

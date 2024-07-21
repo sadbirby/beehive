@@ -27,7 +27,7 @@ const App = () => {
 
   // Loading component
   const Loading = () => (
-    <div className="flex flex-row min-h-screen justify-center items-center">
+    <div className="flex min-h-screen flex-row items-center justify-center">
       <LoadingSpinner />
     </div>
   );
