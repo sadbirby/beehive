@@ -9,6 +9,5 @@ export const createPost = async (username, post) => {
   } catch (error) {
     console.error(error);
   }
-  console.log(response);
   return response.data;
 };

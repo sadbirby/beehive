@@ -287,7 +287,6 @@ const ReplyCardComponent = ({ reply }) => {
   const onLikeButtonPress = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("isPostLikedByCurrentUser?", reply.replyLikedByCurrentUser);
     try {
       if (!reply.replyLikedByCurrentUser) {
         await upvoteAReply(reply.replyId, username).then((res) => {

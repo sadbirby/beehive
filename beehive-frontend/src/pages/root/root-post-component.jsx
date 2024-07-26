@@ -45,8 +45,6 @@ const RootPostComponent = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    console.log("rendered root-post-login-component");
-    // theme change logic
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     localStorage.setItem("color-theme", colorTheme);

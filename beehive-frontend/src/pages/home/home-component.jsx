@@ -23,17 +23,21 @@ import { fetchAllPosts } from "./home-helper";
 
 const HomeComponent = () => {
   const {
+    selectedSortingMethod,
     loaderEnabled,
     postData,
     updateSelectedPost,
+    updateSelectedSortingMethod,
     updatePostData,
     showLoader,
     hideLoader,
   } = useGlobalAppContext();
   const username = localStorage.getItem("username");
-  const [sortingKey, setSortingKey] = useState("Newest");
   const [postResponse, setPostResponse] = useState([]);
-  const pageIndexRef = useRef(0);
+  const [pageIndex, setPageIndex] = useState(0);
+  let pageSizeRef = useRef(10);
+  let sortByRef = useRef("postedOn");
+  let isDescendingRef = useRef(true);
 
   const getAllPosts = useCallback(
     async (pageNumber, pageSize, sortBy, isDescending) => {
@@ -48,60 +52,48 @@ const HomeComponent = () => {
         )
           .then((res) => {
             setPostResponse(res);
-            console.log(res);
             return res.content;
           })
           .then((res) => updatePostData(res));
       } catch (e) {
         console.error("Error in home-component", e);
       } finally {
-        console.log("Fetching posts completed");
         hideLoader();
       }
     },
-    [sortingKey],
+    [selectedSortingMethod],
   );
 
   const memoizedGetAllPosts = useMemo(() => getAllPosts, [getAllPosts]);
 
   useEffect(() => {
     const initialise = async () => {
-      let pageSize = 10;
-      let sortBy = "postedOn";
-      let isDescending = true;
-
-      switch (sortingKey) {
+      switch (selectedSortingMethod) {
         case "Newest":
-          sortBy = "postedOn";
-          isDescending = true;
+          sortByRef.current = "postedOn";
+          isDescendingRef.current = true;
           break;
         case "Oldest":
-          sortBy = "postedOn";
-          isDescending = false;
+          sortByRef.current = "postedOn";
+          isDescendingRef.current = false;
           break;
         case "Popular":
-          sortBy = "numberOfLikes";
-          isDescending = true;
+          sortByRef.current = "numberOfLikes";
+          isDescendingRef.current = true;
           break;
         default:
-          sortBy = "postedOn";
-          isDescending = true;
+          sortByRef.current = "postedOn";
+          isDescendingRef.current = true;
       }
-      console.log("Sorting Key - ", sortingKey);
       await memoizedGetAllPosts(
-        pageIndexRef.current,
-        pageSize,
-        sortBy,
-        isDescending,
+        pageIndex,
+        pageSizeRef.current,
+        sortByRef.current,
+        isDescendingRef.current,
       );
     };
     initialise();
-  }, [sortingKey]);
-
-  const onPageIndexChange = async (newIndex) => {
-    pageIndexRef.current = newIndex;
-    await memoizedGetAllPosts(pageIndexRef.current);
-  };
+  }, [selectedSortingMethod, pageIndex]);
 
   const listItems = postData.map((post, index, { length }) => {
     return (
@@ -137,7 +129,7 @@ const HomeComponent = () => {
             className="h-8 w-8 p-0"
             onClick={() => {
               if (!postResponse.first) {
-                onPageIndexChange(0);
+                setPageIndex(0);
               }
             }}
             disabled={postResponse.first}
@@ -150,7 +142,7 @@ const HomeComponent = () => {
             className="h-8 w-8 p-0"
             onClick={() => {
               if (!postResponse.first) {
-                onPageIndexChange(pageIndexRef.current - 1);
+                setPageIndex(pageIndex - 1);
               }
             }}
             disabled={postResponse.first}
@@ -166,7 +158,7 @@ const HomeComponent = () => {
             className="h-8 w-8 p-0"
             onClick={() => {
               if (!postResponse.last) {
-                onPageIndexChange(pageIndexRef.current + 1);
+                setPageIndex(pageIndex + 1);
               }
             }}
             disabled={postResponse.last}
@@ -179,7 +171,7 @@ const HomeComponent = () => {
             className="h-8 w-8 p-0"
             onClick={() => {
               if (!postResponse.last) {
-                onPageIndexChange(postResponse.totalPages - 1);
+                setPageIndex(postResponse.totalPages - 1);
               }
             }}
             disabled={postResponse.last}
@@ -205,13 +197,13 @@ const HomeComponent = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="inline-flex gap-2">
               <ArrowDownAZ />
-              Sorted By: {sortingKey}
+              Sorted By: {selectedSortingMethod}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuRadioGroup
-              value={sortingKey}
-              onValueChange={setSortingKey}
+              value={selectedSortingMethod}
+              onValueChange={updateSelectedSortingMethod}
             >
               <DropdownMenuRadioItem value="Newest">
                 Newest

@@ -26,7 +26,6 @@ export function PostCardComponent({ post, className, lineClamp }) {
   const onLikeButtonPress = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("isPostLikedByCurrentUser?", post.postLikedByCurrentUser);
     try {
       if (!post.postLikedByCurrentUser) {
         await upvoteAPost(post.postId, username).then((res) => {

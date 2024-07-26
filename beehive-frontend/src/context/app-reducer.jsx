@@ -20,10 +20,10 @@ export const reducer = (state, action) => {
         loaderEnabled: false,
       };
     }
-    case globalActionTypes.UPDATE_SELECTED_PAGE: {
+    case globalActionTypes.UPDATE_SELECTED_SORTING_METHOD: {
       return {
         ...state,
-        selectedPage: action.payload,
+        selectedSortingMethod: action.payload,
       };
     }
     case globalActionTypes.UPDATE_USER_DATA: {

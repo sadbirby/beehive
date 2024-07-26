@@ -1,19 +1,16 @@
-import { pages } from "@/constants/pages";
 import PropTypes from "prop-types";
 import { createContext, useContext, useReducer } from "react";
 import { globalActionTypes } from "./action-types";
 import { reducer } from "./app-reducer";
 
 const initialState = {
-  selectedPage: localStorage.getItem("isAuthenticated")
-    ? pages.PAGE_HOME
-    : pages.PAGE_LANDING,
+  colorTheme: localStorage.getItem("color-theme") || "dark",
   isOnline: localStorage.getItem("isAuthenticated") || false,
   loaderEnabled: true,
   userData: {},
   postData: [],
   selectedPost: {},
-  colorTheme: localStorage.getItem("color-theme") || "dark",
+  selectedSortingMethod: "Newest",
 };
 
 const AppContext = createContext();
@@ -33,10 +30,10 @@ const AppProvider = ({ children, ...props }) => {
     });
   };
 
-  const updateSelectedPage = (selectedPage) => {
+  const updateSelectedSortingMethod = (selectedSortingMethod) => {
     return dispatch({
-      type: globalActionTypes.UPDATE_SELECTED_PAGE,
-      payload: selectedPage,
+      type: globalActionTypes.UPDATE_SELECTED_SORTING_METHOD,
+      payload: selectedSortingMethod,
     });
   };
 
@@ -82,7 +79,7 @@ const AppProvider = ({ children, ...props }) => {
         ...state,
         showLoader,
         hideLoader,
-        updateSelectedPage,
+        updateSelectedSortingMethod,
         updateSelectedPost,
         updateUserData,
         updatePostData,
