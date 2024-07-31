@@ -58,16 +58,14 @@ public class ReplyServiceImpl implements ReplyService {
                   .map(
                       entity -> {
                         ReplyDto replyDto = new ReplyDto();
-                        Boolean isReplyLikedByCurrentUser =
-                            replyLikeService.serviceReplyLikeCheckIfUserExists(
-                                entity.getReplyId(), username);
                         replyDto.setReplyId(entity.getReplyId());
                         replyDto.setReplyBody(entity.getReplyBody());
                         replyDto.setRepliedBy(entity.getRepliedBy());
                         replyDto.setRepliedOn(entity.getRepliedOn());
                         replyDto.setNumberOfLikes(entity.getNumberOfLikes());
-                        replyDto.setReplyLikedByCurrentUser(isReplyLikedByCurrentUser);
-
+                        replyDto.setReplyLikedByCurrentUser(
+                            replyLikeService.serviceReplyLikeCheckIfUserExists(
+                                entity.getReplyId(), username));
                         return replyDto;
                       })
                   .collect(Collectors.toList()),

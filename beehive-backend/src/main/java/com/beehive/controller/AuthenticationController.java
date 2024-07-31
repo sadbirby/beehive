@@ -1,10 +1,13 @@
 package com.beehive.controller;
 
 import com.beehive.request.AuthenticationRequest;
-import com.beehive.response.AuthenticationResponse;
 import com.beehive.security.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,20 +30,22 @@ public class AuthenticationController {
   }
 
   @PostMapping(path = "/authenticate")
-  public AuthenticationResponse authenticate(
+  public ResponseEntity<String> authenticate(
       @RequestBody AuthenticationRequest authenticationRequest) {
 
     // Authenticate the user
+    logger.info("Authentication Controller");
     Authentication authenticate =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-    logger.info("Authentication controller: Logged in");
 
     // If authentication is successful, generate and return a JWT token
     if (authenticate.isAuthenticated()) {
-      return new AuthenticationResponse(
-          jwtService.generateToken(authenticationRequest.getUsername()), "SUCCESS");
+      String token = jwtService.generateToken(authenticationRequest.getUsername());
+      HttpCookie cookie =
+          ResponseCookie.from("token", token).httpOnly(true).path("/").sameSite("Strict").build();
+      return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body("SUCCESS");
     } else {
       throw new UsernameNotFoundException("USER NOT FOUND: " + authenticationRequest.getUsername());
     }

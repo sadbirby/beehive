@@ -95,7 +95,7 @@ const HomeComponent = () => {
     initialise();
   }, [selectedSortingMethod, pageIndex]);
 
-  const listItems = postData.map((post, index, { length }) => {
+  const listItems = postData.map((post) => {
     return (
       <div
         key={post.postId}
@@ -115,7 +115,7 @@ const HomeComponent = () => {
             post={post}
           />
         </Link>
-        <Separator hidden={index + 1 === length} className="my-1" />
+        <Separator className="my-1" />
       </div>
     );
   });

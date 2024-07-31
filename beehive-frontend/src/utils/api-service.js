@@ -1,12 +1,11 @@
 import axios from "axios";
-import { isJwtExpired } from "./is-jwt-expired";
-import { onLogout } from "./on-logout";
 
 const api = axios.create({
   timeout: 5000,
+  withCredentials: true,
 });
 
-api.interceptors.request.use(
+/* api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token && !isJwtExpired(token)) {
@@ -19,7 +18,7 @@ api.interceptors.request.use(
   (error) => {
     return Promise.reject(error);
   },
-);
+); */
 
 const newAbortSignal = (timeoutMs) => {
   const abortController = new AbortController();

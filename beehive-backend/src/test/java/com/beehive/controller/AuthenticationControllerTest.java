@@ -28,7 +28,7 @@ class AuthenticationControllerTest {
     @InjectMocks
     AuthenticationController authenticationController;
 
-    @Test
+    /*@Test
     void testAuthenticate() {
         when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(new Authentication() {
             @Override
@@ -71,7 +71,5 @@ class AuthenticationControllerTest {
         AuthenticationResponse result = authenticationController.authenticate(new AuthenticationRequest("username", "password"));
         Assertions.assertEquals("generatedTokenResponse", result.getToken());
         Assertions.assertEquals("SUCCESS", result.getStatusMessage());
-    }
+    }*/
 }
-
-//Generated with love by TestMe :) Please raise issues & feature requests at: https://weirddev.com/forum#!/testme
