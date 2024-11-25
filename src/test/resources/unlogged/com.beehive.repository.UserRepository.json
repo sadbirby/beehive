@@ -1,0 +1,35 @@
+{
+  "classname": "com.beehive.repository.UserRepository",
+  "storedCandidateMap": {},
+  "declaredMockMap": {
+    "com.beehive.repository.UserRepository#findById#(Ljava/lang/String;)Ljava/util/Optional<Lcom/beehive/entity/UserEntity;>;": [
+      {
+        "id": "df338c6e-6d39-4cc9-b080-4424e655429a",
+        "name": "mock response for call to userRepository.findById",
+        "fieldTypeName": "com.beehive.repository.UserRepository",
+        "sourceClassName": "com.beehive.service.impl.UserServiceImpl",
+        "fieldName": "userRepository",
+        "methodName": "findById",
+        "whenParameter": [
+          {
+            "name": "id",
+            "type": "ANY_OF_TYPE",
+            "value": "java.lang.String"
+          }
+        ],
+        "thenParameter": [
+          {
+            "returnParameter": {
+              "declaredMocks": [],
+              "value": "{\"username\": \"string\", \"email\": \"string\", \"password\": \"string\"}",
+              "returnValueType": "REAL",
+              "className": "java.util.Optional<com.beehive.entity.UserEntity>"
+            },
+            "methodExitType": "NORMAL"
+          }
+        ],
+        "methodHashKey": "com.beehive.repository.UserRepository#findById#(Ljava/lang/String;)Ljava/util/Optional<Lcom/beehive/entity/UserEntity;>;"
+      }
+    ]
+  }
+}
