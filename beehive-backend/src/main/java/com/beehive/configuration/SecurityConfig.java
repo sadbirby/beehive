@@ -3,9 +3,9 @@ package com.beehive.configuration;
 import com.beehive.repository.UserRepository;
 import com.beehive.security.JwtFilter;
 import com.beehive.security.UserPrincipalService;
-import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -23,97 +24,112 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-  private static final String[] AUTH_WHITELIST = {
-    // -- Register & Authenticate User
-    "/api/v1.0/login/authenticate",
-    "/api/v1.0/user/forgot-password",
-    "/api/v1.0/user/register",
-    "/api/v1.0/user/check/**",
-    // -- Swagger UI v3 (OpenAPI)
-    "/v3/api-docs/**",
-    "/swagger-ui/**",
-    "/swagger-resources",
-    "/swagger-resources/**",
-    "/configuration/ui",
-    "/configuration/security",
-    "/swagger-ui.html",
-    "/webjars/**",
-    // other public endpoints of your API may be appended to this array
-  };
-  private final JwtFilter jwtFilter;
-  private final UserRepository userRepository;
+    private static final String[] AUTH_WHITELIST = {
+            // -- Register & Authenticate User
+            "/api/v1.0/login/authenticate",
+            "/api/v1.0/user/forgot-password",
+            "/api/v1.0/user/register",
+            "/api/v1.0/user/check/**",
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // other public endpoints of your API may be appended to this array
+            "/actuator/**"
+    };
+    private final JwtFilter jwtFilter;
+    private final UserRepository userRepository;
 
-  public SecurityConfig(JwtFilter jwtFilter, UserRepository userRepository) {
-    this.jwtFilter = jwtFilter;
-    this.userRepository = userRepository;
-  }
+    public SecurityConfig(JwtFilter jwtFilter, UserRepository userRepository) {
+        this.jwtFilter = jwtFilter;
+        this.userRepository = userRepository;
+    }
 
-  // Defines a UserDetailsService bean for user authentication
-  @Bean
-  public UserDetailsService userDetailsService() {
-    return new UserPrincipalService(userRepository);
-  }
+    // Defines a UserDetailsService bean for user authentication
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserPrincipalService(userRepository);
+    }
 
-  // Configures the security filter chain
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-    return httpSecurity
-        .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Disable CORS
-        .csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(AUTH_WHITELIST)
-                    .permitAll() // Permit all requests to certain URLs
-                    .anyRequest()
-                    .authenticated()) // Require authentication for all other requests
-        .sessionManagement(
-            session ->
-                session.sessionCreationPolicy(
-                    SessionCreationPolicy.STATELESS)) // Set session management to stateless
-        .authenticationProvider(authenticationProvider()) // Register the authentication provider
-        .addFilterBefore(
-            jwtFilter,
-            UsernamePasswordAuthenticationFilter
-                .class) // Add the JWT filter before processing the request
-        .build();
-  }
+    // Configures the security filter chain
+    @Bean
+    @Profile("!test")
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                // Disable CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // Disable CSRF protection
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        // Permit all requests to certain URLs
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        // Require authentication for all other requests
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        // Set session management to stateless
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Register the authentication provider
+                .authenticationProvider(authenticationProvider())
+                // Add the JWT filter before processing the request
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
-  // Creates a DaoAuthenticationProvider to handle user authentication
-  @Bean
-  public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(userDetailsService());
-    authenticationProvider.setPasswordEncoder(passwordEncoder());
-    return authenticationProvider;
-  }
+    @Bean
+    @Profile("test")
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .cors(CorsConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
+    }
 
-  // Defines a PasswordEncoder bean that uses bcrypt hashing by default for password encoding
-  @Bean
-  PasswordEncoder passwordEncoder() {
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-  }
+    // Creates a DaoAuthenticationProvider to handle user authentication
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
 
-  // Defines an AuthenticationManager bean to manage authentication processes
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-      throws Exception {
-    return config.getAuthenticationManager();
-  }
+    // Defines a PasswordEncoder bean that uses bcrypt hashing by default for password encoding
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
-  // CORS configuration to allow all sources
-  @Bean
-  CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-    configuration.setAllowedMethods(Arrays.asList("*"));
-    configuration.setAllowedHeaders(Arrays.asList("*"));
-    configuration.setAllowCredentials(true);
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-  }
+    // Defines an AuthenticationManager bean to manage authentication processes
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    // CORS configuration to allow all sources
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

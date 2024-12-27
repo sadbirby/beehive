@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { PostCardComponent } from "../post/post-card-component";
 import { fetchAllPostsByUser } from "./my-profile-helper";
 
-const MyProfileComponent = () => {
+const MyProfileComponent = ({ className }) => {
   const {
     loaderEnabled,
     loaderMessage,
@@ -82,7 +82,7 @@ const MyProfileComponent = () => {
       </div>
     </div>
   ) : (
-    <div className="grid grid-cols-1 gap-2">
+    <div className="grid w-full max-w-5xl grid-cols-1 gap-2 self-center">
       {/* <Card className="px-0 py-4"></Card> */}
       <div className="grid grid-cols-1 gap-2">{listItems}</div>
       <div className="flex-row items-center justify-between gap-2 px-0 py-4">

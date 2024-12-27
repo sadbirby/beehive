@@ -4,13 +4,13 @@ import com.beehive.dto.UserDto;
 
 public class UserRequest {
 
-  UserDto user;
+    UserDto user;
 
-  public UserDto getUser() {
-    return user;
-  }
+    public UserDto getUser() {
+        return user;
+    }
 
-  public void setUser(UserDto user) {
-    this.user = user;
-  }
+    public void setUser(UserDto user) {
+        this.user = user;
+    }
 }

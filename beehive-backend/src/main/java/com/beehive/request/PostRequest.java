@@ -4,13 +4,13 @@ import com.beehive.dto.PostDto;
 
 public class PostRequest {
 
-  private PostDto post;
+    private PostDto post;
 
-  public PostDto getPost() {
-    return post;
-  }
+    public PostDto getPost() {
+        return post;
+    }
 
-  public void setPost(PostDto post) {
-    this.post = post;
-  }
+    public void setPost(PostDto post) {
+        this.post = post;
+    }
 }

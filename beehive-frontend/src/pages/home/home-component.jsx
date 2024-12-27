@@ -193,7 +193,7 @@ const HomeComponent = () => {
     <div className="grid w-full max-w-5xl grid-cols-1 self-center rounded-md border bg-card shadow-sm">
       {/* <Card className="px-0 py-4"></Card> */}
       <div className="justify-self-start p-2">
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="inline-flex gap-2">
               <ArrowDownAZ />

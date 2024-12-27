@@ -3,13 +3,13 @@ package com.beehive.entity.projection;
 import java.util.Date;
 
 public interface ReplyEntityProjection {
-  Long getReplyId();
+    Long getReplyId();
 
-  String getReplyBody();
+    String getReplyBody();
 
-  String getRepliedBy();
+    String getRepliedBy();
 
-  Date getRepliedOn();
+    Date getRepliedOn();
 
-  Long getNumberOfLikes();
+    Long getNumberOfLikes();
 }

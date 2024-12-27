@@ -184,9 +184,9 @@ const ReplyComponent = () => {
       <LoadingSpinner />
     </div>
   ) : (
-    <div className="grid grid-cols-1 gap-2">
+    <div className="grid w-full max-w-5xl grid-cols-1 gap-2 self-center">
       <div className="grid grid-cols-1 gap-3">
-        <PostCardComponent post={currentPost.posts?.[0]} />
+        <PostCardComponent post={currentPost.posts?.[0]} className={""} />
         <ReplyFormComponent />
         {replyResponse.totalElements > 0 ? (
           <>

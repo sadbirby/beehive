@@ -1,5 +1,6 @@
 package com.beehive.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -10,39 +11,49 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "users")
 public class UserEntity {
 
-  @Id @NotBlank private String username;
-  @NotBlank @Email private String email;
-  @NotBlank private String password;
+    @Id
+    @NotBlank
+    private String username;
 
-  public UserEntity() {}
+    @Column(unique = true, nullable = false)
+    @NotBlank
+    @Email
+    private String email;
 
-  public UserEntity(String username, String email, String password) {
-    this.username = username;
-    this.email = email;
-    this.password = password;
-  }
+    @Column(unique = true, nullable = false)
+    @NotBlank
+    private String password;
 
-  public String getUsername() {
-    return username;
-  }
+    public UserEntity() {
+    }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    public UserEntity(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

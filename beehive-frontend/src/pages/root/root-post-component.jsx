@@ -129,6 +129,32 @@ const RootPostComponent = () => {
     );
   };
 
+  const NavComponent = () => {
+    return (
+      <nav className="fixed left-0 hidden min-h-svh w-40 space-y-1 border-r p-4 md:block">
+        <NavLink
+          to="/home"
+          className={({ isActive }) => {
+            return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+          }}
+        >
+          <Home className="h-4 w-4" />
+          Home
+        </NavLink>
+        <NavLink
+          key={currentUser}
+          to={`/${currentUser}/posts`}
+          className={({ isActive }) => {
+            return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
+          }}
+        >
+          <Users className="h-4 w-4" />
+          Profile
+        </NavLink>
+      </nav>
+    );
+  };
+
   const DropdownComponent = () => {
     return (
       <>
@@ -205,27 +231,7 @@ const RootPostComponent = () => {
         </div>
       </header>
       <div className="min-w-screen relative top-14 flex flex-1">
-        <nav className="fixed left-0 hidden min-h-svh w-40 space-y-1 border-r p-4 md:block">
-          <NavLink
-            to="/home"
-            className={({ isActive }) => {
-              return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
-            }}
-          >
-            <Home className="h-4 w-4" />
-            Home
-          </NavLink>
-          <NavLink
-            key={currentUser}
-            to={`/${currentUser}/posts`}
-            className={({ isActive }) => {
-              return isActive ? classnames.NAV_ACTIVE : classnames.NAV;
-            }}
-          >
-            <Users className="h-4 w-4" />
-            Profile
-          </NavLink>
-        </nav>
+        <NavComponent />
         <div className="flex min-w-fit flex-1 flex-col p-4 md:ml-40 md:gap-6">
           <Outlet />
         </div>

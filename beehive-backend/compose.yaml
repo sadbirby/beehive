@@ -1,0 +1,29 @@
+services:
+  prometheus:
+    image: "prom/prometheus:v2.54.1"
+    container_name: "beehive-prometheus"
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./tools/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+  grafana:
+    image: "grafana/grafana:11.2.2"
+    container_name: "beehive-grafana"
+    ports:
+      - "3000:3000"
+    restart: "unless-stopped"
+    volumes:
+      - "./tools/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources"
+#  mysql:
+#    image: "mysql:9.1.0"
+#    container_name: "beehive-mysql"
+#    ports:
+#      - "3306:3306"
+#    expose:
+#      - "3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: "root"
+#      MYSQL_DATABASE: "beehive"
+#    restart: "unless-stopped"
+#    volumes:
+#      - "./tools/mysql/data:/var/lib/mysql"

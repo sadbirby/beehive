@@ -3,17 +3,17 @@ package com.beehive.entity.projection;
 import java.util.Date;
 
 public interface PostEntityProjection {
-  Long getPostId();
+    Long getPostId();
 
-  String getPostTitle();
+    String getPostTitle();
 
-  String getPostBody();
+    String getPostBody();
 
-  String getPostedBy();
+    String getPostedBy();
 
-  Date getPostedOn();
+    Date getPostedOn();
 
-  Long getNumberOfLikes();
+    Long getNumberOfLikes();
 
-  Long getNumberOfReplies();
+    Long getNumberOfReplies();
 }

@@ -1,0 +1,33 @@
+beehive:
+  jwt:
+    secret: V1NDQW1wbGVSYW5kb21LZXlGGVSYW5kb21LZXlGb3JXSVQtR1BU
+server:
+  port: 8097
+spring:
+  application:
+    name: beehive-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    name: beehive
+    password: root
+    url: jdbc:mysql://localhost:3306/beehive?createDatabaseIfNotExist=true
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+  output:
+    ansi:
+      enabled: ALWAYS
+  threads:
+    virtual:
+      enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: [ 'prometheus' ]
+  metrics:
+    tags:
+      application: beehive-backend

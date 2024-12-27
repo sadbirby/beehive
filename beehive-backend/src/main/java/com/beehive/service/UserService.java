@@ -5,13 +5,13 @@ import com.beehive.response.UserResponse;
 
 public interface UserService {
 
-  Boolean serviceUserCheckIfExists(String username);
+    Boolean serviceUserCheckIfExists(String username);
 
-  UserResponse serviceUserGetAll();
+    UserResponse serviceUserGetAll();
 
-  UserResponse serviceUserRegister(UserRequest request);
+    UserResponse serviceUserRegister(UserRequest request);
 
-  UserResponse serviceUserForgotPassword(UserRequest request);
+    UserResponse serviceUserForgotPassword(UserRequest request);
 
-  UserResponse serviceUserSearch(String username);
+    UserResponse serviceUserSearch(String username);
 }

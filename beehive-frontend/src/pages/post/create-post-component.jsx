@@ -67,7 +67,7 @@ const CreatePostComponent = () => {
       </div>
     </div>
   ) : (
-    <div className="flex justify-center p-4">
+    <div className="flex w-full max-w-5xl justify-center self-center p-4">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

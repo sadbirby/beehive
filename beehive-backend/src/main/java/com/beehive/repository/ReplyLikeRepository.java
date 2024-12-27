@@ -12,18 +12,22 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReplyLikeRepository extends JpaRepository<ReplyLikeEntity, ReplyLikeId> {
 
-  @Query("SELECT COUNT(r) FROM ReplyLikeEntity r WHERE r.replyId = :replyId")
-  Long countByReplyId(@Param("replyId") Long replyId);
+    @Query("SELECT COUNT(r) FROM ReplyLikeEntity r WHERE r.replyId = :replyId")
+    Long countByReplyId(@Param("replyId") Long replyId);
 
-  @Query(
-      "SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM ReplyLikeEntity r WHERE r.replyId = :replyId AND r.replyLikedBy = :replyLikedBy")
-  Boolean existsByReplyIdAndReplyLikedBy(
-      @Param("replyId") Long replyId, @Param("replyLikedBy") String replyLikedBy);
+    @Query(
+            """
+                    SELECT CASE WHEN COUNT(r) > 0
+                    THEN true ELSE false END
+                    FROM ReplyLikeEntity r WHERE r.replyId = :replyId AND r.replyLikedBy = :replyLikedBy
+                    """)
+    Boolean existsByReplyIdAndReplyLikedBy(
+            @Param("replyId") Long replyId, @Param("replyLikedBy") String replyLikedBy);
 
-  @Transactional
-  @Modifying(flushAutomatically = true, clearAutomatically = true)
-  @Query(
-      "DELETE FROM ReplyLikeEntity r WHERE r.replyId = :replyId AND r.replyLikedBy = :replyLikedBy")
-  void deleteByReplyIdAndReplyLikedBy(
-      @Param("replyId") Long replyId, @Param("replyLikedBy") String replyLikedBy);
+    @Transactional
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(
+            "DELETE FROM ReplyLikeEntity r WHERE r.replyId = :replyId AND r.replyLikedBy = :replyLikedBy")
+    void deleteByReplyIdAndReplyLikedBy(
+            @Param("replyId") Long replyId, @Param("replyLikedBy") String replyLikedBy);
 }
