@@ -1,0 +1,16 @@
+name: 'beehive'
+services:
+  mysql:
+    image: 'mysql:lts'
+    environment:
+      - 'MYSQL_DATABASE=beehive'
+      - 'MYSQL_PASSWORD=${DB_PASSWORD}'
+      - 'MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}'
+      - 'MYSQL_USER=${DB_USER}'
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'mysql-data:/var/lib/mysql'
+
+volumes:
+  mysql-data: { }

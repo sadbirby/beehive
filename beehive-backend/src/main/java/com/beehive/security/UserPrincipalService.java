@@ -1,8 +1,10 @@
 package com.beehive.security;
 
-import com.beehive.entity.UserEntity;
-import com.beehive.repository.UserRepository;
+import com.beehive.domain.entity.UserEntity;
+import com.beehive.domain.repository.UserRepository;
+
 import java.util.Optional;
+
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,17 +15,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserPrincipalService implements UserDetailsService {
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  public UserPrincipalService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+    public UserPrincipalService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-    Optional<UserEntity> user = userRepository.findByUsername(username);
-    return user.map(UserPrincipal::new)
-        .orElseThrow(() -> new UsernameNotFoundException("User Not Found: " + username));
-  }
+        Optional<UserEntity> user = userRepository.findByUsername(username);
+        return user.map(UserPrincipal::new)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found: " + username));
+    }
 }

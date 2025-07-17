@@ -1,0 +1,28 @@
+# jwt-signing-key
+beehive:
+  jwt-signing-key: ${JWT_SIGNING_KEY}
+server:
+  port: 8097
+  shutdown: graceful
+spring:
+  application:
+    name: beehive-backend
+  # datasource
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    name: beehive
+    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/beehive?createDatabaseIfNotExist=true
+    username: ${DB_USER}
+  # jpa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  # virtual-threads
+  threads:
+    virtual:
+      enabled: true
