@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WorkspaceSettings">
+    <project name="commons-security" path="$PROJECT_DIR$/../commons-security" />
+    <project name="commons-response" path="$PROJECT_DIR$/../commons-response" />
+    <project name="auth-service" path="$PROJECT_DIR$/../auth-service" />
+    <project name="user-service" path="$PROJECT_DIR$/../user-service" />
+    <project name="commons-audit" path="$PROJECT_DIR$/../commons-audit" />
+    <project name="post-service" path="$PROJECT_DIR$/../post-service" />
+    <option name="workspace" value="true" />
+  </component>
+</project>
